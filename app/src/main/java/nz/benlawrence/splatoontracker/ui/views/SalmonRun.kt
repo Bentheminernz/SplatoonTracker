@@ -1,0 +1,122 @@
+package nz.benlawrence.splatoontracker.ui.views
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
+import kotlinx.coroutines.delay
+import nz.benlawrence.splatoontracker.R
+import nz.benlawrence.splatoontracker.data.SplatoonDataState
+import nz.benlawrence.splatoontracker.data.SplatoonDataViewModel
+import nz.benlawrence.splatoontracker.data.models.CoopGroupingRegularScheduleNode
+import nz.benlawrence.splatoontracker.ui.components.SalmonRunListItem
+import nz.benlawrence.splatoontracker.ui.theme.SplatoonSalmonRun
+import java.time.Instant
+
+@Composable
+fun SalmonRun(
+    viewModel: SplatoonDataViewModel,
+    modifier: Modifier
+) {
+    Column(modifier = modifier.padding(16.dp)) {
+        when(val state = viewModel.dataState) {
+            is SplatoonDataState.Success ->
+                Column {
+                    val now = Instant.now()
+                    val currentSchedule: CoopGroupingRegularScheduleNode =
+                        state.data.coopGroupingSchedule.regularSchedules.nodes.filter {
+                            Instant.parse(it.startTime).isBefore(now) &&
+                                    Instant.parse(it.endTime).isAfter(now)
+                        }.first()
+                    val timeRemaining by produceState(initialValue = "") {
+                        while(true) {
+                            val end = Instant.parse(currentSchedule.endTime)
+                            val duration = java.time.Duration.between(Instant.now(), end)
+                            val hours = duration.toHours()
+                            val minutes = duration.toMinutesPart()
+                            val seconds = duration.toSecondsPart()
+                            value = "%02d:%02d:%02d".format(hours, minutes, seconds)
+                            delay(1000)
+                        }
+                    }
+                    val bossImage = when (currentSchedule.setting.boss.id) {
+                        "Q29vcEVuZW15LTIz" -> R.drawable.cohozuna
+                        "Q29vcEVuZW15LTI0" -> R.drawable.horrorboros
+                        "Q29vcEVuZW15LTI1" -> R.drawable.cohozuna
+                        "Q29vcEVuZW15LTMw" -> R.drawable.triumvirate
+                        else -> R.drawable.ic_launcher_foreground
+                    }
+
+                    Column {
+                        Row {
+                            AsyncImage(
+                                model = bossImage,
+                                contentDescription = "Image of ${currentSchedule.setting.boss.name}",
+                                contentScale = ContentScale.FillHeight,
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .padding(end = 8.dp)
+                            )
+
+                            Text(
+                                currentSchedule.setting.coopStage.name,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = MaterialTheme.typography.headlineLarge.fontSize
+                            )
+                        }
+
+                        AsyncImage(
+                            model = currentSchedule.setting.coopStage.image.url,
+                            contentDescription = "Image of ${currentSchedule.setting.coopStage.name}",
+                            contentScale = ContentScale.FillWidth,
+                            modifier = Modifier.size(200.dp)
+                        )
+
+                        Text("Ends in $timeRemaining")
+
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            items(currentSchedule.setting.weapons) { weapon ->
+                                AsyncImage(
+                                    model = weapon.image.url,
+                                    contentDescription = "Image of ${weapon.name}",
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.size(64.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier
+                            .fillMaxSize()
+                    ) {
+                        items(state.data.coopGroupingSchedule.regularSchedules.nodes) { node ->
+                            SalmonRunListItem(node)
+                        }
+                    }
+                }
+
+
+            else ->
+                Text("else")
+        }
+    }
+}
