@@ -8,7 +8,7 @@ import nz.benlawrence.splatoontracker.R
 @Composable
 fun getBattleImage(id: String): Painter {
     val resId =  when (id) {
-        "VnNSdWxlLTI" -> R.drawable.tower_control
+        "VnNSdWxlLTI=" -> R.drawable.tower_control
         "VnNSdWxlLTQ=" -> R.drawable.clam_blitz
         "VnNSdWxlLTM=" -> R.drawable.rainmaker
         "VnNSdWxlLTE=" -> R.drawable.splat_zones
