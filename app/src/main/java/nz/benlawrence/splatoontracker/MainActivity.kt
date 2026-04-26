@@ -82,7 +82,7 @@
                         )
                     }
 
-                AppDestinations.PROFILE ->
+                AppDestinations.CHALLENGE ->
                     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                         Greeting(
                             name = "Profile",
@@ -98,9 +98,9 @@
         val icon: Int,
         val iconSize: Dp = 32.dp
     ) {
-        HOME("Home", R.drawable.ic_home),
-        GRIZZCO("Grizzco", R.drawable.grizzco_logo),
-        PROFILE("Profile", R.drawable.ic_account_box),
+        HOME("Schedules", R.drawable.turf_war),
+        GRIZZCO("Salmon Run", R.drawable.coop),
+        CHALLENGE("Challenge", R.drawable.challenge),
     }
 
     @Composable

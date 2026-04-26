@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import nz.benlawrence.splatoontracker.data.SplatoonDataViewModel
 import nz.benlawrence.splatoontracker.data.models.Data
 import nz.benlawrence.splatoontracker.ui.components.MatchTypeHeader
+import nz.benlawrence.splatoontracker.ui.components.MatchTypeOrTypename
 import nz.benlawrence.splatoontracker.ui.components.VsStageItem
 import java.time.Instant
 
@@ -26,7 +27,7 @@ fun UpcomingBattleSheet(
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        MatchTypeHeader(type = type)
+        MatchTypeHeader(source = MatchTypeOrTypename.KnownType(type))
 
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(12.dp),

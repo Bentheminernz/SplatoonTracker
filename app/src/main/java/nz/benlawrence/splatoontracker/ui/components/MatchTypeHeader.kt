@@ -13,23 +13,38 @@ import androidx.compose.ui.unit.sp
 import nz.benlawrence.splatoontracker.R
 import nz.benlawrence.splatoontracker.ui.theme.BlitzFontFamily
 import nz.benlawrence.splatoontracker.ui.views.MatchType
+import nz.benlawrence.splatoontracker.utils.getScheduleImage
 
 @Composable
 fun MatchTypeHeader(
-    type: MatchType
+    source: MatchTypeOrTypename
 ) {
-    val title = when (type) {
-        is MatchType.Regular -> "Regular Battle"
-        is MatchType.BankaraOpen -> "Anarchy Battle Open"
-        is MatchType.BankaraChallenge -> "Anarchy Battle Series"
-        is MatchType.XBattle -> "X Battle"
+    val title = when (source) {
+        is MatchTypeOrTypename.KnownType -> when (source.type) {
+            is MatchType.Regular -> "Regular Battle"
+            is MatchType.BankaraOpen -> "Anarchy Battle Open"
+            is MatchType.BankaraChallenge -> "Anarchy Battle Series"
+            is MatchType.XBattle -> "X Battle"
+        }
+        is MatchTypeOrTypename.Typename -> when (source.typename) {
+            "RegularMatchSetting" -> "Regular Battle"
+            "BankaraMatchSettingOpen" -> "Anarchy Battle Open"
+            "BankaraMatchSettingChallenge" -> "Anarchy Battle Series"
+            "XMatchSetting" -> "X Battle"
+            else -> "Unknown"
+        }
     }
 
-    val image = when (type) {
-        is MatchType.Regular -> R.drawable.regular_battle
-        is MatchType.BankaraChallenge -> R.drawable.bankara_battle
-        is MatchType.BankaraOpen -> R.drawable.bankara_battle
-        is MatchType.XBattle -> R.drawable.x_battle
+    val painter = when (source) {
+        is MatchTypeOrTypename.KnownType -> painterResource(
+            when (source.type) {
+                is MatchType.Regular -> R.drawable.regular_battle
+                is MatchType.BankaraChallenge -> R.drawable.bankara_battle
+                is MatchType.BankaraOpen -> R.drawable.bankara_battle
+                is MatchType.XBattle -> R.drawable.x_battle
+            }
+        )
+        is MatchTypeOrTypename.Typename -> getScheduleImage(source.typename)
     }
 
     Row(
@@ -37,7 +52,7 @@ fun MatchTypeHeader(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
-            painter = painterResource(image),
+            painter = painter,
             contentDescription = "Icon for $title"
         )
 
@@ -45,7 +60,12 @@ fun MatchTypeHeader(
             title,
             fontFamily = BlitzFontFamily,
             fontWeight = FontWeight.Bold,
-            fontSize = 24.sp
+            fontSize = 22.sp
         )
     }
+}
+
+sealed interface MatchTypeOrTypename {
+    data class KnownType(val type: MatchType) : MatchTypeOrTypename
+    data class Typename(val typename: String) : MatchTypeOrTypename
 }

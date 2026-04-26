@@ -23,6 +23,8 @@ fun getScheduleImage(typename: String): Painter {
     val resId = when (typename) {
         "RegularMatchSetting" -> R.drawable.regular_battle
         "BankaraMatchSetting" -> R.drawable.bankara_battle
+        "BankaraMatchSettingChallenge" -> R.drawable.bankara_battle
+        "BankaraMatchSettingOpen" -> R.drawable.bankara_battle
         "XMatchSetting" -> R.drawable.x_battle
         else -> R.drawable.ic_home
     }
