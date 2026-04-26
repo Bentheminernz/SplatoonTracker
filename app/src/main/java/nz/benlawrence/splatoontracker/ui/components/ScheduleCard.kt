@@ -26,54 +26,54 @@ import nz.benlawrence.splatoontracker.utils.getScheduleImage
 
 @Composable
 fun ScheduleCard(
-    typename: String,
-    currentNode: ScheduleDisplayData,
-    nextNode: ScheduleDisplayData,
-    rotation: Float,
-    onViewSchedule: () -> Unit,
+  typename: String,
+  currentNode: ScheduleDisplayData,
+  nextNode: ScheduleDisplayData,
+  rotation: Float,
+  onViewSchedule: () -> Unit,
 ) {
-    Column(
-        modifier = Modifier
-            .rotate(rotation)
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .fillMaxWidth()
-            .padding(16.dp)
+  Column(
+    modifier = Modifier
+        .rotate(rotation)
+        .clip(RoundedCornerShape(16.dp))
+        .background(MaterialTheme.colorScheme.surfaceVariant)
+        .fillMaxWidth()
+        .padding(16.dp)
+  ) {
+    MatchTypeHeader(
+      source = MatchTypeOrTypename.Typename(typename)
+    )
+
+    VsStageItem(
+      vsStages = currentNode.vsStages,
+      vsRule = currentNode.vsRule,
+      startTime = currentNode.startTime,
+      endTime = currentNode.endTime
+    )
+
+    VsStageItem(
+      vsStages = nextNode.vsStages,
+      vsRule = nextNode.vsRule,
+      startTime = nextNode.startTime,
+      endTime = nextNode.endTime,
+      isNext = true
+    )
+
+    Button(
+      onClick = onViewSchedule,
+      modifier = Modifier.padding(top = 8.dp)
     ) {
-        MatchTypeHeader(
-            source = MatchTypeOrTypename.Typename(typename)
-        )
-
-        VsStageItem(
-            vsStages = currentNode.vsStages,
-            vsRule = currentNode.vsRule,
-            startTime = currentNode.startTime,
-            endTime = currentNode.endTime
-        )
-
-        VsStageItem(
-            vsStages = nextNode.vsStages,
-            vsRule = nextNode.vsRule,
-            startTime = nextNode.startTime,
-            endTime = nextNode.endTime,
-            isNext = true
-        )
-
-        Button(
-            onClick = onViewSchedule,
-            modifier = Modifier.padding(top = 8.dp)
-        ) {
-            Text(
-                "All Upcoming Stages",
-                fontFamily = BlitzFontFamily,
-            )
-        }
+      Text(
+        "All Upcoming Stages",
+        fontFamily = BlitzFontFamily,
+      )
     }
+  }
 }
 
 data class ScheduleDisplayData(
-    val vsStages: List<VsStage>,
-    val vsRule: VsRule,
-    val startTime: String,
-    val endTime: String
+  val vsStages: List<VsStage>,
+  val vsRule: VsRule,
+  val startTime: String,
+  val endTime: String
 )

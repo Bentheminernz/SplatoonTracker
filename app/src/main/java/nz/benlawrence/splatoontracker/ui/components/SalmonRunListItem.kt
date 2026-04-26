@@ -29,76 +29,76 @@ import java.util.Locale
 
 @Composable
 fun SalmonRunListItem(
-    item: CoopGroupingRegularScheduleNode
+  item: CoopGroupingRegularScheduleNode
 ) {
-    val startTime by produceState(initialValue = "") {
-        val dateTime = ZonedDateTime.parse(item.startTime)
-        val formatter = DateTimeFormatter.ofPattern("E, M/d, h:mm a", Locale.ENGLISH)
-        value = dateTime.format(formatter)
-    }
+  val startTime by produceState(initialValue = "") {
+    val dateTime = ZonedDateTime.parse(item.startTime)
+    val formatter = DateTimeFormatter.ofPattern("E, M/d, h:mm a", Locale.ENGLISH)
+    value = dateTime.format(formatter)
+  }
 
-    val endTime by produceState(initialValue = "") {
-        val dateTime = ZonedDateTime.parse(item.endTime)
-        val formatter = DateTimeFormatter.ofPattern("M/d, h:mm a", Locale.ENGLISH)
-        value = dateTime.format(formatter)
-    }
+  val endTime by produceState(initialValue = "") {
+    val dateTime = ZonedDateTime.parse(item.endTime)
+    val formatter = DateTimeFormatter.ofPattern("M/d, h:mm a", Locale.ENGLISH)
+    value = dateTime.format(formatter)
+  }
 
-    val bossImage = when (item.setting.boss.id) {
-        "Q29vcEVuZW15LTIz" -> R.drawable.cohozuna
-        "Q29vcEVuZW15LTI0" -> R.drawable.horrorboros
-        "Q29vcEVuZW15LTI1" -> R.drawable.cohozuna
-        "Q29vcEVuZW15LTMw" -> R.drawable.triumvirate
-        else -> R.drawable.ic_launcher_foreground
-    }
+  val bossImage = when (item.setting.boss.id) {
+    "Q29vcEVuZW15LTIz" -> R.drawable.cohozuna
+    "Q29vcEVuZW15LTI0" -> R.drawable.horrorboros
+    "Q29vcEVuZW15LTI1" -> R.drawable.cohozuna
+    "Q29vcEVuZW15LTMw" -> R.drawable.triumvirate
+    else -> R.drawable.ic_launcher_foreground
+  }
 
-    Column(
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(16.dp)
-            .fillMaxWidth()
+  Column(
+    verticalArrangement = Arrangement.spacedBy(8.dp),
+    modifier = Modifier
+        .clip(RoundedCornerShape(16.dp))
+        .background(MaterialTheme.colorScheme.surfaceVariant)
+        .padding(16.dp)
+        .fillMaxWidth()
+  ) {
+    Row(
+      horizontalArrangement = Arrangement.spacedBy(8.dp),
+      verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            AsyncImage(
-                model = bossImage,
-                contentDescription = "Image of ${item.setting.boss.name}",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.size(32.dp)
-            )
+      AsyncImage(
+        model = bossImage,
+        contentDescription = "Image of ${item.setting.boss.name}",
+        contentScale = ContentScale.Crop,
+        modifier = Modifier.size(32.dp)
+      )
 
-            Text("$startTime - $endTime")
-        }
-
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            AsyncImage(
-                model = item.setting.coopStage.image.url,
-                contentDescription = "Image of ${item.setting.coopStage.name}",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(64.dp)
-                    .clip(RoundedCornerShape(8.dp))
-            )
-
-            Column {
-                Text(item.setting.coopStage.name)
-
-                LazyRow {
-                    items(item.setting.weapons) { weapon ->
-                        AsyncImage(
-                            model = weapon.image.url,
-                            contentDescription = "Image of ${weapon.name}",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.size(48.dp)
-                        )
-                    }
-                }
-            }
-        }
+      Text("$startTime - $endTime")
     }
+
+    Row(
+      horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+      AsyncImage(
+        model = item.setting.coopStage.image.url,
+        contentDescription = "Image of ${item.setting.coopStage.name}",
+        contentScale = ContentScale.Crop,
+        modifier = Modifier
+            .size(64.dp)
+            .clip(RoundedCornerShape(8.dp))
+      )
+
+      Column {
+        Text(item.setting.coopStage.name)
+
+        LazyRow {
+          items(item.setting.weapons) { weapon ->
+            AsyncImage(
+              model = weapon.image.url,
+              contentDescription = "Image of ${weapon.name}",
+              contentScale = ContentScale.Crop,
+              modifier = Modifier.size(48.dp)
+            )
+          }
+        }
+      }
+    }
+  }
 }

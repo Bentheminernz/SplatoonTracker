@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Splatoon Tracker</string>
+    <string name="widget_description">Splatoon rotation widget</string>
 </resources>

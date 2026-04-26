@@ -6,6 +6,6 @@ import androidx.compose.ui.text.font.FontWeight
 import nz.benlawrence.splatoontracker.R
 
 val BlitzFontFamily = FontFamily(
-    Font(R.font.blitz_main, FontWeight.Normal),
-    Font(R.font.blitz_bold, FontWeight.Bold)
+  Font(R.font.blitz_main, FontWeight.Normal),
+  Font(R.font.blitz_bold, FontWeight.Bold)
 )

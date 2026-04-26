@@ -40,115 +40,123 @@ import java.time.Instant
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    viewModel: SplatoonDataViewModel,
-    modifier: Modifier
+  viewModel: SplatoonDataViewModel,
+  modifier: Modifier
 ) {
-    Column {
-        when(val state = viewModel.dataState) {
-            is SplatoonDataState.Success -> {
-                val now = Instant.now()
-                val currentRegular = state.data.regularSchedules.nodes.first {
-                    Instant.parse(it.startTime).isBefore(now) && Instant.parse(it.endTime).isAfter(now)
-                }
-                val nextRegular = state.data.regularSchedules.nodes.first {
-                    it.startTime != currentRegular.startTime
-                }
-                val currentBankara = state.data.bankaraSchedules.nodes.first {
-                    Instant.parse(it.startTime).isBefore(now) && Instant.parse(it.endTime).isAfter(now)
-                }
-                val nextBankara = state.data.bankaraSchedules.nodes.first {
-                    it.startTime != currentBankara.startTime
-                }
-                val currentX = state.data.xSchedules.nodes.first {
-                    Instant.parse(it.startTime).isBefore(now) && Instant.parse(it.endTime).isAfter(now)
-                }
-                val nextX = state.data.xSchedules.nodes.first {
-                    it.startTime != currentX.startTime
-                }
-
-                var selectedMatch by remember { mutableStateOf<MatchType?>(null) }
-
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    modifier = modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .padding(16.dp)
-                ) {
-                    Text("Schedules", fontFamily = BlitzFontFamily, fontSize = 28.sp, fontWeight = FontWeight.Bold)
-
-                    ScheduleCard(
-                        typename = currentRegular.regularMatchSetting.__typename,
-                        currentNode = ScheduleDisplayData(
-                            currentRegular.regularMatchSetting.vsStages,
-                            currentRegular.regularMatchSetting.vsRule,
-                            currentRegular.startTime,
-                            currentRegular.endTime
-                        ),
-                        nextNode = ScheduleDisplayData(
-                            nextRegular.regularMatchSetting.vsStages,
-                            nextRegular.regularMatchSetting.vsRule,
-                            nextRegular.startTime,
-                            nextRegular.endTime
-                        ),
-                        rotation = -2f,
-                        onViewSchedule = { selectedMatch = MatchType.Regular }
-                    )
-
-                    ScheduleCard(
-                        typename = "${currentBankara.bankaraMatchSettings.first { it.bankaraMode == "CHALLENGE" }.__typename}Challenge",
-                        currentNode = currentBankara.toDisplayData("CHALLENGE"),
-                        nextNode = nextBankara.toDisplayData("CHALLENGE"),
-                        rotation = 2f,
-                        onViewSchedule = { selectedMatch = MatchType.BankaraChallenge },
-                    )
-
-                    ScheduleCard(
-                        typename = "${currentBankara.bankaraMatchSettings.first { it.bankaraMode == "OPEN" }.__typename}Open",
-                        currentNode = currentBankara.toDisplayData("OPEN"),
-                        nextNode = nextBankara.toDisplayData("OPEN"),
-                        rotation = -2f,
-                        onViewSchedule = { selectedMatch = MatchType.BankaraOpen },
-                    )
-
-                    ScheduleCard(
-                        typename = currentX.xMatchSetting.__typename,
-                        currentNode = ScheduleDisplayData(
-                            currentX.xMatchSetting.vsStages,
-                            currentX.xMatchSetting.vsRule,
-                            currentX.startTime,
-                            currentX.endTime
-                        ),
-                        nextNode = ScheduleDisplayData(
-                            nextX.xMatchSetting.vsStages,
-                            nextX.xMatchSetting.vsRule,
-                            nextX.startTime,
-                            nextX.endTime
-                        ),
-                        rotation = 2f,
-                        onViewSchedule = { selectedMatch = MatchType.XBattle }
-                    )
-
-                    selectedMatch?.let { type ->
-                        ModalBottomSheet(onDismissRequest = { selectedMatch = null }) {
-                            UpcomingBattleSheet(data = state.data, type = type)
-                        }
-                    }
-                }
-            }
-
-            is SplatoonDataState.Error ->
-                Text(state.message)
-
-            is SplatoonDataState.Loading ->
-                Text("loading")
+  Column {
+    when (val state = viewModel.dataState) {
+      is SplatoonDataState.Success -> {
+        val now = Instant.now()
+        val currentRegular = state.data.regularSchedules.nodes.first {
+          Instant.parse(it.startTime).isBefore(now) && Instant.parse(it.endTime)
+            .isAfter(now)
         }
+        val nextRegular = state.data.regularSchedules.nodes.first {
+          it.startTime != currentRegular.startTime
+        }
+        val currentBankara = state.data.bankaraSchedules.nodes.first {
+          Instant.parse(it.startTime).isBefore(now) && Instant.parse(it.endTime)
+            .isAfter(now)
+        }
+        val nextBankara = state.data.bankaraSchedules.nodes.first {
+          it.startTime != currentBankara.startTime
+        }
+        val currentX = state.data.xSchedules.nodes.first {
+          Instant.parse(it.startTime).isBefore(now) && Instant.parse(it.endTime)
+            .isAfter(now)
+        }
+        val nextX = state.data.xSchedules.nodes.first {
+          it.startTime != currentX.startTime
+        }
+
+        var selectedMatch by remember { mutableStateOf<MatchType?>(null) }
+
+        Column(
+          verticalArrangement = Arrangement.spacedBy(16.dp),
+          modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp)
+        ) {
+          Text(
+            "Schedules",
+            fontFamily = BlitzFontFamily,
+            fontSize = 28.sp,
+            fontWeight = FontWeight.Bold
+          )
+
+          ScheduleCard(
+            typename = currentRegular.regularMatchSetting.__typename,
+            currentNode = ScheduleDisplayData(
+              currentRegular.regularMatchSetting.vsStages,
+              currentRegular.regularMatchSetting.vsRule,
+              currentRegular.startTime,
+              currentRegular.endTime
+            ),
+            nextNode = ScheduleDisplayData(
+              nextRegular.regularMatchSetting.vsStages,
+              nextRegular.regularMatchSetting.vsRule,
+              nextRegular.startTime,
+              nextRegular.endTime
+            ),
+            rotation = -2f,
+            onViewSchedule = { selectedMatch = MatchType.Regular }
+          )
+
+          ScheduleCard(
+            typename = "${currentBankara.bankaraMatchSettings.first { it.bankaraMode == "CHALLENGE" }.__typename}Challenge",
+            currentNode = currentBankara.toDisplayData("CHALLENGE"),
+            nextNode = nextBankara.toDisplayData("CHALLENGE"),
+            rotation = 2f,
+            onViewSchedule = { selectedMatch = MatchType.BankaraChallenge },
+          )
+
+          ScheduleCard(
+            typename = "${currentBankara.bankaraMatchSettings.first { it.bankaraMode == "OPEN" }.__typename}Open",
+            currentNode = currentBankara.toDisplayData("OPEN"),
+            nextNode = nextBankara.toDisplayData("OPEN"),
+            rotation = -2f,
+            onViewSchedule = { selectedMatch = MatchType.BankaraOpen },
+          )
+
+          ScheduleCard(
+            typename = currentX.xMatchSetting.__typename,
+            currentNode = ScheduleDisplayData(
+              currentX.xMatchSetting.vsStages,
+              currentX.xMatchSetting.vsRule,
+              currentX.startTime,
+              currentX.endTime
+            ),
+            nextNode = ScheduleDisplayData(
+              nextX.xMatchSetting.vsStages,
+              nextX.xMatchSetting.vsRule,
+              nextX.startTime,
+              nextX.endTime
+            ),
+            rotation = 2f,
+            onViewSchedule = { selectedMatch = MatchType.XBattle }
+          )
+
+          selectedMatch?.let { type ->
+            ModalBottomSheet(onDismissRequest = { selectedMatch = null }) {
+              UpcomingBattleSheet(data = state.data, type = type)
+            }
+          }
+        }
+      }
+
+      is SplatoonDataState.Error ->
+        Text(state.message)
+
+      is SplatoonDataState.Loading ->
+        Text("loading")
     }
+  }
 }
 
 sealed class MatchType {
-    data object Regular: MatchType()
-    data object BankaraChallenge: MatchType()
-    data object BankaraOpen: MatchType()
-    data object XBattle: MatchType()
+  data object Regular : MatchType()
+  data object BankaraChallenge : MatchType()
+  data object BankaraOpen : MatchType()
+  data object XBattle : MatchType()
 }

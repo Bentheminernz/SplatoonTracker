@@ -17,55 +17,57 @@ import nz.benlawrence.splatoontracker.utils.getScheduleImage
 
 @Composable
 fun MatchTypeHeader(
-    source: MatchTypeOrTypename
+  source: MatchTypeOrTypename
 ) {
-    val title = when (source) {
-        is MatchTypeOrTypename.KnownType -> when (source.type) {
-            is MatchType.Regular -> "Regular Battle"
-            is MatchType.BankaraOpen -> "Anarchy Battle Open"
-            is MatchType.BankaraChallenge -> "Anarchy Battle Series"
-            is MatchType.XBattle -> "X Battle"
-        }
-        is MatchTypeOrTypename.Typename -> when (source.typename) {
-            "RegularMatchSetting" -> "Regular Battle"
-            "BankaraMatchSettingOpen" -> "Anarchy Battle Open"
-            "BankaraMatchSettingChallenge" -> "Anarchy Battle Series"
-            "XMatchSetting" -> "X Battle"
-            else -> "Unknown"
-        }
+  val title = when (source) {
+    is MatchTypeOrTypename.KnownType -> when (source.type) {
+      is MatchType.Regular -> "Regular Battle"
+      is MatchType.BankaraOpen -> "Anarchy Battle Open"
+      is MatchType.BankaraChallenge -> "Anarchy Battle Series"
+      is MatchType.XBattle -> "X Battle"
     }
 
-    val painter = when (source) {
-        is MatchTypeOrTypename.KnownType -> painterResource(
-            when (source.type) {
-                is MatchType.Regular -> R.drawable.regular_battle
-                is MatchType.BankaraChallenge -> R.drawable.bankara_battle
-                is MatchType.BankaraOpen -> R.drawable.bankara_battle
-                is MatchType.XBattle -> R.drawable.x_battle
-            }
-        )
-        is MatchTypeOrTypename.Typename -> getScheduleImage(source.typename)
+    is MatchTypeOrTypename.Typename -> when (source.typename) {
+      "RegularMatchSetting" -> "Regular Battle"
+      "BankaraMatchSettingOpen" -> "Anarchy Battle Open"
+      "BankaraMatchSettingChallenge" -> "Anarchy Battle Series"
+      "XMatchSetting" -> "X Battle"
+      else -> "Unknown"
     }
+  }
 
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Image(
-            painter = painter,
-            contentDescription = "Icon for $title"
-        )
+  val painter = when (source) {
+    is MatchTypeOrTypename.KnownType -> painterResource(
+      when (source.type) {
+        is MatchType.Regular -> R.drawable.regular_battle
+        is MatchType.BankaraChallenge -> R.drawable.bankara_battle
+        is MatchType.BankaraOpen -> R.drawable.bankara_battle
+        is MatchType.XBattle -> R.drawable.x_battle
+      }
+    )
 
-        Text(
-            title,
-            fontFamily = BlitzFontFamily,
-            fontWeight = FontWeight.Bold,
-            fontSize = 22.sp
-        )
-    }
+    is MatchTypeOrTypename.Typename -> getScheduleImage(source.typename)
+  }
+
+  Row(
+    horizontalArrangement = Arrangement.spacedBy(8.dp),
+    verticalAlignment = Alignment.CenterVertically
+  ) {
+    Image(
+      painter = painter,
+      contentDescription = "Icon for $title"
+    )
+
+    Text(
+      title,
+      fontFamily = BlitzFontFamily,
+      fontWeight = FontWeight.Bold,
+      fontSize = 22.sp
+    )
+  }
 }
 
 sealed interface MatchTypeOrTypename {
-    data class KnownType(val type: MatchType) : MatchTypeOrTypename
-    data class Typename(val typename: String) : MatchTypeOrTypename
+  data class KnownType(val type: MatchType) : MatchTypeOrTypename
+  data class Typename(val typename: String) : MatchTypeOrTypename
 }
