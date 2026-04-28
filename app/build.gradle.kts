@@ -56,6 +56,7 @@ dependencies {
     implementation("androidx.glance:glance-appwidget:1.2.0-rc01")
     implementation("androidx.glance:glance-material3:1.2.0-rc01")
     implementation("androidx.work:work-runtime:2.11.2")
+    implementation("androidx.datastore:datastore:1.2.1")
     implementation(libs.androidx.compose.material3.adaptive.navigation.suite)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

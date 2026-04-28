@@ -1,10 +1,15 @@
 package nz.benlawrence.splatoontracker
 
+import android.app.NotificationManager
+import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
@@ -14,6 +19,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -21,44 +27,80 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import nz.benlawrence.splatoontracker.data.SplatoonDataViewModel
+import nz.benlawrence.splatoontracker.data.UserPreferencesViewModel
 import nz.benlawrence.splatoontracker.ui.theme.SplatoonTrackerTheme
 import nz.benlawrence.splatoontracker.ui.views.Challenge
 import nz.benlawrence.splatoontracker.ui.views.HomeScreen
 import nz.benlawrence.splatoontracker.ui.views.SalmonRun
+import nz.benlawrence.splatoontracker.ui.views.Settings
 import nz.benlawrence.splatoontracker.widget.SplatoonWidgetWorker
+import java.util.jar.Manifest
 
 class MainActivity : ComponentActivity() {
+  val splatoonViewModel: SplatoonDataViewModel = SplatoonDataViewModel()
+  val userPreferencesViewModel: UserPreferencesViewModel by viewModels()
+
+  private val requestPermissionLauncher = registerForActivityResult(
+    ActivityResultContracts.RequestPermission()
+  ) { granted ->
+    userPreferencesViewModel.setNotificationsEnabled(granted)
+    if (granted && !userPreferencesViewModel.hasSeenOnBoarding.value) {
+      userPreferencesViewModel.setDefaultNotificationSettings()
+    }
+  }
+
+  fun enableNotifications() {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+      requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+    } else {
+      userPreferencesViewModel.setNotificationsEnabled(true)
+    }
+  }
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-      requestPermissions(
-        arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
-        0
-      )
-    }
 
     SplatoonWidgetWorker.schedule(this)
 
     enableEdgeToEdge()
     setContent {
+      val hasSeenOnboarding by userPreferencesViewModel.hasSeenOnBoarding.collectAsStateWithLifecycle()
+
+      LaunchedEffect(hasSeenOnboarding) {
+        if (!hasSeenOnboarding) {
+          enableNotifications()
+
+        }
+      }
+
       SplatoonTrackerTheme {
-        SplatoonTrackerApp()
+        SplatoonTrackerApp(
+          splatoonViewModel,
+          userPreferencesViewModel,
+          onRequestNotificationPermission = {
+            enableNotifications()
+          }
+        )
       }
     }
   }
 }
 
-@PreviewScreenSizes
 @Composable
-fun SplatoonTrackerApp() {
+fun SplatoonTrackerApp(
+  splatoonViewModel: SplatoonDataViewModel,
+  userPreferencesViewModel: UserPreferencesViewModel,
+  onRequestNotificationPermission: () -> Unit
+) {
   var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.HOME) }
-  val viewModel: SplatoonDataViewModel = SplatoonDataViewModel()
 
   NavigationSuiteScaffold(
     navigationSuiteItems = {
@@ -82,7 +124,7 @@ fun SplatoonTrackerApp() {
       AppDestinations.HOME ->
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
           HomeScreen(
-            viewModel = viewModel,
+            viewModel = splatoonViewModel,
             modifier = Modifier.padding(innerPadding)
           )
         }
@@ -90,7 +132,7 @@ fun SplatoonTrackerApp() {
       AppDestinations.GRIZZCO ->
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
           SalmonRun(
-            viewModel = viewModel,
+            viewModel = splatoonViewModel,
             modifier = Modifier.padding(innerPadding)
           )
         }
@@ -98,8 +140,17 @@ fun SplatoonTrackerApp() {
       AppDestinations.CHALLENGE ->
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
           Challenge(
-            viewModel = viewModel,
+            viewModel = splatoonViewModel,
             modifier = Modifier.padding(innerPadding)
+          )
+        }
+
+      AppDestinations.SETTINGS ->
+        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+          Settings(
+            viewModel = userPreferencesViewModel,
+            modifier = Modifier.padding(innerPadding),
+            onRequestNotificationPermission
           )
         }
     }
@@ -114,6 +165,7 @@ enum class AppDestinations(
   HOME("Schedules", R.drawable.turf_war),
   GRIZZCO("Salmon Run", R.drawable.coop),
   CHALLENGE("Challenge", R.drawable.challenge),
+  SETTINGS("Settings", R.drawable.bankara_battle)
 }
 
 @Composable
