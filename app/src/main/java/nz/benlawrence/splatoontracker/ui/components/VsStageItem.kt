@@ -20,8 +20,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.delay
-import nz.benlawrence.splatoontracker.data.models.VsRule
-import nz.benlawrence.splatoontracker.data.models.VsStage
+import nz.benlawrence.splatoontracker.data.models.Splatoon3Ink.VsRule
+import nz.benlawrence.splatoontracker.data.models.Splatoon3Ink.VsStage
 import nz.benlawrence.splatoontracker.ui.theme.BlitzFontFamily
 import nz.benlawrence.splatoontracker.utils.getBattleImage
 import java.time.Instant

@@ -6,7 +6,7 @@ import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import nz.benlawrence.splatoontracker.data.models.Data
+import nz.benlawrence.splatoontracker.data.models.Splatoon3Ink.Data
 
 class SplatoonDataViewModel: ViewModel() {
     var dataState: SplatoonDataState by mutableStateOf(SplatoonDataState.Loading)
@@ -19,7 +19,7 @@ class SplatoonDataViewModel: ViewModel() {
     fun loadCountries() {
         viewModelScope.launch {
             try {
-                val response = SplatoonAPIClient.splattonAPI.getSchedules()
+                val response = SplatoonAPIClient.splatoonAPI.getSchedules()
                 dataState = SplatoonDataState.Success(response.data)
                 Log.d("SplatoonDataViewModel", "Data loaded successfully: $response")
             } catch(e: Exception) {

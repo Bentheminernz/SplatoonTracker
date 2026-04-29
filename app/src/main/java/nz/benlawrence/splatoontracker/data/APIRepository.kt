@@ -1,10 +1,29 @@
 package nz.benlawrence.splatoontracker.data
 
-import nz.benlawrence.splatoontracker.data.models.Data
-import nz.benlawrence.splatoontracker.data.models.SchedulesResponse
+import nz.benlawrence.splatoontracker.data.models.Splatoon3Ink.SchedulesResponse
+import nz.benlawrence.splatoontracker.data.models.coral.AuthURL
+import nz.benlawrence.splatoontracker.data.models.coral.SessionRequest
+import nz.benlawrence.splatoontracker.data.models.coral.SessionResponse
+import nz.benlawrence.splatoontracker.data.models.coral.SplatnetAuthData
+import nz.benlawrence.splatoontracker.data.models.coral.splatnet.sideorder.SideOrderRecord
+import nz.benlawrence.splatoontracker.data.models.coral.splatnet.sideorder.SideOrderRecordWrapper
+import nz.benlawrence.splatoontracker.data.models.coral.splatnet.sideorder.SideOrderRecords
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
 
-interface SplatoonAPI {
+interface Splatoon3InkAPI {
     @GET("schedules.json")
     suspend fun getSchedules(): SchedulesResponse
+}
+
+interface CoralAPI {
+    @GET("auth/url")
+    suspend fun getAuthURL(): AuthURL
+
+    @POST("auth/session")
+    suspend fun createSession(@Body request: SessionRequest): SessionResponse
+
+    @POST("splatnet3/side-order")
+    suspend fun fetchSideOrderRecords(@Body request: Map<String, SplatnetAuthData>): SideOrderRecords
 }

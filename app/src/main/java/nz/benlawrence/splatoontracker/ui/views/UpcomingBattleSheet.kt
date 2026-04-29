@@ -6,12 +6,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import nz.benlawrence.splatoontracker.data.SplatoonDataViewModel
-import nz.benlawrence.splatoontracker.data.models.Data
+import nz.benlawrence.splatoontracker.data.models.Splatoon3Ink.Data
 import nz.benlawrence.splatoontracker.ui.components.MatchTypeHeader
 import nz.benlawrence.splatoontracker.ui.components.MatchTypeOrTypename
 import nz.benlawrence.splatoontracker.ui.components.VsStageItem

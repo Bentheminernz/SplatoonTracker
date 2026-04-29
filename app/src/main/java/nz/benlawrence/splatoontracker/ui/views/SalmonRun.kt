@@ -1,6 +1,5 @@
 package nz.benlawrence.splatoontracker.ui.views
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,9 +26,8 @@ import kotlinx.coroutines.delay
 import nz.benlawrence.splatoontracker.R
 import nz.benlawrence.splatoontracker.data.SplatoonDataState
 import nz.benlawrence.splatoontracker.data.SplatoonDataViewModel
-import nz.benlawrence.splatoontracker.data.models.CoopGroupingRegularScheduleNode
+import nz.benlawrence.splatoontracker.data.models.Splatoon3Ink.CoopGroupingRegularScheduleNode
 import nz.benlawrence.splatoontracker.ui.components.SalmonRunListItem
-import nz.benlawrence.splatoontracker.ui.theme.SplatoonSalmonRun
 import java.time.Instant
 
 @Composable

@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import nz.benlawrence.splatoontracker.data.CoralDataViewModel
 import nz.benlawrence.splatoontracker.data.SplatoonDataViewModel
 import nz.benlawrence.splatoontracker.data.UserPreferencesViewModel
 import nz.benlawrence.splatoontracker.ui.theme.SplatoonTrackerTheme
@@ -41,12 +42,14 @@ import nz.benlawrence.splatoontracker.ui.views.Challenge
 import nz.benlawrence.splatoontracker.ui.views.HomeScreen
 import nz.benlawrence.splatoontracker.ui.views.SalmonRun
 import nz.benlawrence.splatoontracker.ui.views.Settings
+import nz.benlawrence.splatoontracker.ui.views.Splatnet
 import nz.benlawrence.splatoontracker.widget.SplatoonWidgetWorker
 import java.util.jar.Manifest
 
 class MainActivity : ComponentActivity() {
   val splatoonViewModel: SplatoonDataViewModel = SplatoonDataViewModel()
   val userPreferencesViewModel: UserPreferencesViewModel by viewModels()
+  val coralViewModel: CoralDataViewModel by lazy { CoralDataViewModel(this) }
 
   private val requestPermissionLauncher = registerForActivityResult(
     ActivityResultContracts.RequestPermission()
@@ -84,6 +87,7 @@ class MainActivity : ComponentActivity() {
       SplatoonTrackerTheme {
         SplatoonTrackerApp(
           splatoonViewModel,
+          coralViewModel,
           userPreferencesViewModel,
           onRequestNotificationPermission = {
             enableNotifications()
@@ -97,6 +101,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun SplatoonTrackerApp(
   splatoonViewModel: SplatoonDataViewModel,
+  coralViewModel: CoralDataViewModel,
   userPreferencesViewModel: UserPreferencesViewModel,
   onRequestNotificationPermission: () -> Unit
 ) {
@@ -153,6 +158,14 @@ fun SplatoonTrackerApp(
             onRequestNotificationPermission
           )
         }
+
+      AppDestinations.SPLATNET ->
+        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+          Splatnet(
+            viewModel = coralViewModel,
+            modifier = Modifier.padding(innerPadding)
+          )
+        }
     }
   }
 }
@@ -165,7 +178,8 @@ enum class AppDestinations(
   HOME("Schedules", R.drawable.turf_war),
   GRIZZCO("Salmon Run", R.drawable.coop),
   CHALLENGE("Challenge", R.drawable.challenge),
-  SETTINGS("Settings", R.drawable.bankara_battle)
+  SETTINGS("Settings", R.drawable.bankara_battle),
+  SPLATNET("Splatnet", R.drawable.ic_home)
 }
 
 @Composable

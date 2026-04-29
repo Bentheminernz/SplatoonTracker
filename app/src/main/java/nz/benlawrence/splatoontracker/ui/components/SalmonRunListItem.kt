@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -21,8 +20,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import nz.benlawrence.splatoontracker.R
-import nz.benlawrence.splatoontracker.data.models.CoopGroupingRegularScheduleNode
-import nz.benlawrence.splatoontracker.ui.theme.SplatoonSalmonRun
+import nz.benlawrence.splatoontracker.data.models.Splatoon3Ink.CoopGroupingRegularScheduleNode
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale

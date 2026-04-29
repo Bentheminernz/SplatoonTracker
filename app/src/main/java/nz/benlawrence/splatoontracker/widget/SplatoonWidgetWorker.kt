@@ -11,7 +11,7 @@ import androidx.work.*
 import nz.benlawrence.splatoontracker.MainActivity
 import nz.benlawrence.splatoontracker.R
 import nz.benlawrence.splatoontracker.data.SplatoonAPIClient
-import nz.benlawrence.splatoontracker.data.models.RegularScheduleNode
+import nz.benlawrence.splatoontracker.data.models.Splatoon3Ink.RegularScheduleNode
 import java.util.concurrent.TimeUnit
 
 class SplatoonWidgetWorker(
@@ -21,7 +21,7 @@ class SplatoonWidgetWorker(
 
   override suspend fun doWork(): Result {
     return try {
-      val response = SplatoonAPIClient.splattonAPI.getSchedules()
+      val response = SplatoonAPIClient.splatoonAPI.getSchedules()
       val newRotation = response.data.regularSchedules?.nodes?.firstOrNull()
 
       val prefs = context.getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
