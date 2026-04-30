@@ -1,5 +1,6 @@
-package nz.benlawrence.splatoontracker.ui.views
+package nz.benlawrence.splatoontracker.ui.views.SalmonRun
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -21,21 +23,33 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.delay
 import nz.benlawrence.splatoontracker.R
+import nz.benlawrence.splatoontracker.data.CoralDataViewModel
+import nz.benlawrence.splatoontracker.data.DataState
 import nz.benlawrence.splatoontracker.data.SplatoonDataState
 import nz.benlawrence.splatoontracker.data.SplatoonDataViewModel
 import nz.benlawrence.splatoontracker.data.models.Splatoon3Ink.CoopGroupingRegularScheduleNode
 import nz.benlawrence.splatoontracker.ui.components.SalmonRunListItem
+import java.time.Duration
 import java.time.Instant
 
 @Composable
-fun SalmonRun(
+fun SalmonRunSchedule(
   viewModel: SplatoonDataViewModel,
-  modifier: Modifier
+  coralViewModel: CoralDataViewModel,
+  navController: NavController
 ) {
-  Column(modifier = modifier.padding(16.dp)) {
+  LaunchedEffect(Unit) {
+    val data = (coralViewModel.dataState.coopResult as? DataState.Success)?.data
+    if (data == null) {
+      coralViewModel.getCoopResult()
+    }
+  }
+
+  Column(modifier = Modifier.padding(16.dp)) {
     when (val state = viewModel.dataState) {
       is SplatoonDataState.Success ->
         Column {
@@ -48,7 +62,7 @@ fun SalmonRun(
           val timeRemaining by produceState(initialValue = "") {
             while (true) {
               val end = Instant.parse(currentSchedule.endTime)
-              val duration = java.time.Duration.between(Instant.now(), end)
+              val duration = Duration.between(Instant.now(), end)
               val hours = duration.toHours()
               val minutes = duration.toMinutesPart()
               val seconds = duration.toSecondsPart()
@@ -118,6 +132,23 @@ fun SalmonRun(
               .fillMaxSize()
           ) {
             items(state.data.coopGroupingSchedule.regularSchedules.nodes) { node ->
+              val battleHistory = (coralViewModel.dataState.coopResult as? DataState.Success)
+                ?.data
+                ?.historyGroups
+                ?.nodes
+                .orEmpty()
+                .flatMap { it.historyDetails.nodes }
+                .filter { it.coopStage.id == node.setting.coopStage.id }
+              Log.i("SalmonRun", "Battle History: $battleHistory")
+
+              battleHistory.forEach {
+                Button(onClick = {
+                  navController.navigate("coop_detail/${it.id}")
+                }) {
+                  Text("View Battle ${it.id.take(10)}")
+                }
+              }
+
               SalmonRunListItem(node)
             }
           }

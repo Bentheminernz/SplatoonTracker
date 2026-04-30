@@ -1,8 +1,5 @@
 package nz.benlawrence.splatoontracker
 
-import android.app.NotificationManager
-import android.content.Context
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -12,7 +9,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -26,25 +22,23 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import nz.benlawrence.splatoontracker.data.CoralDataViewModel
 import nz.benlawrence.splatoontracker.data.SplatoonDataViewModel
 import nz.benlawrence.splatoontracker.data.UserPreferencesViewModel
 import nz.benlawrence.splatoontracker.ui.theme.SplatoonTrackerTheme
 import nz.benlawrence.splatoontracker.ui.views.Challenge
 import nz.benlawrence.splatoontracker.ui.views.HomeScreen
-import nz.benlawrence.splatoontracker.ui.views.SalmonRun
+import nz.benlawrence.splatoontracker.ui.views.SalmonRun.CoopHistoryDetail
+import nz.benlawrence.splatoontracker.ui.views.SalmonRun.SalmonRunSchedule
 import nz.benlawrence.splatoontracker.ui.views.Settings
 import nz.benlawrence.splatoontracker.ui.views.Splatnet
 import nz.benlawrence.splatoontracker.widget.SplatoonWidgetWorker
-import java.util.jar.Manifest
 
 class MainActivity : ComponentActivity() {
   val splatoonViewModel: SplatoonDataViewModel = SplatoonDataViewModel()
@@ -70,9 +64,7 @@ class MainActivity : ComponentActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-
     SplatoonWidgetWorker.schedule(this)
-
     enableEdgeToEdge()
     setContent {
       val hasSeenOnboarding by userPreferencesViewModel.hasSeenOnBoarding.collectAsStateWithLifecycle()
@@ -80,18 +72,15 @@ class MainActivity : ComponentActivity() {
       LaunchedEffect(hasSeenOnboarding) {
         if (!hasSeenOnboarding) {
           enableNotifications()
-
         }
       }
 
       SplatoonTrackerTheme {
         SplatoonTrackerApp(
-          splatoonViewModel,
-          coralViewModel,
-          userPreferencesViewModel,
-          onRequestNotificationPermission = {
-            enableNotifications()
-          }
+          splatoonViewModel = splatoonViewModel,
+          coralViewModel = coralViewModel,
+          userPreferencesViewModel = userPreferencesViewModel,
+          onRequestNotificationPermission = { enableNotifications() }
         )
       }
     }
@@ -126,46 +115,110 @@ fun SplatoonTrackerApp(
     }
   ) {
     when (currentDestination) {
-      AppDestinations.HOME ->
+      AppDestinations.HOME -> {
+        val navController = rememberNavController()
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-          HomeScreen(
-            viewModel = splatoonViewModel,
+          NavHost(
+            navController = navController,
+            startDestination = "home",
             modifier = Modifier.padding(innerPadding)
-          )
+          ) {
+            composable("home") {
+              HomeScreen(
+                viewModel = splatoonViewModel,
+                navController = navController
+              )
+            }
+            // Add Home tab detail screens here, e.g.:
+            // composable("schedule_detail/{id}") { backStackEntry ->
+            //     val id = backStackEntry.arguments?.getString("id")
+            //     ScheduleDetailScreen(id = id, navController = navController)
+            // }
+          }
         }
+      }
 
-      AppDestinations.GRIZZCO ->
+      AppDestinations.GRIZZCO -> {
+        val navController = rememberNavController()
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-          SalmonRun(
-            viewModel = splatoonViewModel,
+          NavHost(
+            navController = navController,
+            startDestination = "salmon_run",
             modifier = Modifier.padding(innerPadding)
-          )
+          ) {
+            composable("salmon_run") {
+              SalmonRunSchedule(
+                viewModel = splatoonViewModel,
+                coralViewModel = coralViewModel,
+                navController = navController
+              )
+            }
+            composable("coop_detail/{id}") { backStackEntry ->
+              val id = backStackEntry.arguments?.getString("id")
+              CoopHistoryDetail(
+                coopHistoryId = id ?: "",
+                viewModel = coralViewModel,
+                navController = navController
+              )
+            }
+          }
         }
+      }
 
-      AppDestinations.CHALLENGE ->
+      AppDestinations.CHALLENGE -> {
+        val navController = rememberNavController()
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-          Challenge(
-            viewModel = splatoonViewModel,
+          NavHost(
+            navController = navController,
+            startDestination = "challenge",
             modifier = Modifier.padding(innerPadding)
-          )
+          ) {
+            composable("challenge") {
+              Challenge(
+                viewModel = splatoonViewModel,
+                navController = navController
+              )
+            }
+          }
         }
+      }
 
-      AppDestinations.SETTINGS ->
+      AppDestinations.SETTINGS -> {
+        val navController = rememberNavController()
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-          Settings(
-            viewModel = userPreferencesViewModel,
-            modifier = Modifier.padding(innerPadding),
-            onRequestNotificationPermission
-          )
-        }
-
-      AppDestinations.SPLATNET ->
-        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-          Splatnet(
-            viewModel = coralViewModel,
+          NavHost(
+            navController = navController,
+            startDestination = "settings",
             modifier = Modifier.padding(innerPadding)
-          )
+          ) {
+            composable("settings") {
+              Settings(
+                viewModel = userPreferencesViewModel,
+                navController = navController,
+                onRequestNotificationPermission = onRequestNotificationPermission
+              )
+            }
+          }
         }
+      }
+
+      AppDestinations.SPLATNET -> {
+        val navController = rememberNavController()
+        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+          NavHost(
+            navController = navController,
+            startDestination = "splatnet",
+            modifier = Modifier.padding(innerPadding)
+          ) {
+            composable("splatnet") {
+              Splatnet(
+                viewModel = coralViewModel,
+                navController = navController
+              )
+            }
+          }
+        }
+      }
     }
   }
 }
@@ -180,20 +233,4 @@ enum class AppDestinations(
   CHALLENGE("Challenge", R.drawable.challenge),
   SETTINGS("Settings", R.drawable.bankara_battle),
   SPLATNET("Splatnet", R.drawable.ic_home)
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-  Text(
-    text = "Hello $name!",
-    modifier = modifier
-  )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-  SplatoonTrackerTheme {
-    Greeting("Android")
-  }
 }

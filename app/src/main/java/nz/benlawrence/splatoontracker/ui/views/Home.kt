@@ -18,6 +18,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import nz.benlawrence.splatoontracker.data.models.Splatoon3Ink.toDisplayData
 import nz.benlawrence.splatoontracker.ui.components.ScheduleCard
 import nz.benlawrence.splatoontracker.ui.components.ScheduleDisplayData
@@ -28,7 +29,7 @@ import java.time.Instant
 @Composable
 fun HomeScreen(
   viewModel: SplatoonDataViewModel,
-  modifier: Modifier
+  navController: NavController
 ) {
   Column {
     when (val state = viewModel.dataState) {
@@ -60,7 +61,7 @@ fun HomeScreen(
 
         Column(
           verticalArrangement = Arrangement.spacedBy(16.dp),
-          modifier = modifier
+          modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(16.dp)

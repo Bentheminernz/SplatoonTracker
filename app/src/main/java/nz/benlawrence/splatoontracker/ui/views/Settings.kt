@@ -12,19 +12,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import nz.benlawrence.splatoontracker.data.UserPreferencesViewModel
 
 @Composable
 fun Settings(
   viewModel: UserPreferencesViewModel,
-  modifier: Modifier,
-  onRequestNotificationPermission: () -> Unit
+  onRequestNotificationPermission: () -> Unit,
+  navController: NavController
 ) {
   val notificationsEnabled by viewModel.notificationsEnabled.collectAsStateWithLifecycle()
   val regularBattleNotisEnabled by viewModel.regularBattleNotificationsEnabled.collectAsStateWithLifecycle()
 
   Column(
-    modifier = modifier
+    modifier = Modifier
       .padding(horizontal = 16.dp)
   ) {
     Row(

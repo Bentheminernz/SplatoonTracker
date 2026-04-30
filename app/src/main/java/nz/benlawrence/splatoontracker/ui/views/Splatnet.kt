@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.navigation.NavController
 import nz.benlawrence.splatoontracker.data.CoralDataViewModel
 import nz.benlawrence.splatoontracker.data.DataState
 import nz.benlawrence.splatoontracker.data.models.coral.SessionRequest
@@ -24,12 +25,12 @@ import nz.benlawrence.splatoontracker.utils.openInBrowser
 @Composable
 fun Splatnet(
   viewModel: CoralDataViewModel,
-  modifier: Modifier
+  navController: NavController
 ) {
   var redirectUri by remember { mutableStateOf("") }
 
   Column(
-    modifier = modifier
+    modifier = Modifier
       .fillMaxSize()
       .padding(horizontal = 16.dp)
   ) {
