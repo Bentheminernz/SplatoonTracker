@@ -113,7 +113,8 @@ data class BossResult(
 
 data class CoopStage(
     val id: String,
-    val name: String
+    val name: String,
+    val image: Image?
 )
 
 data class MemberResult(

@@ -7,7 +7,7 @@ import nz.benlawrence.splatoontracker.data.models.coral.splatnet.Image
 // --- Request types ---
 
 data class CoopHistoryDetailRequestBody(
-  val splatnetAuthData: SplatnetAuthData,
+//  val splatnetAuthData: SplatnetAuthData,
   val historyDetailRequest: CoopHistoryDetailRequest
 )
 

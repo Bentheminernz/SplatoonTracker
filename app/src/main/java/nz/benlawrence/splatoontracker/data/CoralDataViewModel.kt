@@ -96,17 +96,18 @@ class CoralDataViewModel(context: Context? = null): ViewModel() {
   }
 
   fun getCoopResult() {
-    val sessionData = (dataState.coralSession as? DataState.Success)?.data
-
-    if (sessionData == null) {
-      dataState = dataState.copy(coopResult = DataState.Error("Session Data is null"))
-      return
-    }
+//    val sessionData = (dataState.coralSession as? DataState.Success)?.data
+//
+//    if (sessionData == null) {
+//      dataState = dataState.copy(coopResult = DataState.Error("Session Data is null"))
+//      return
+//    }
 
     viewModelScope.launch {
       dataState = dataState.copy(coopResult = DataState.Loading)
       try {
-        val response = SplatoonAPIClient.coralAPI.fetchCoopHistory(mapOf("splatnetAuthData" to sessionData.splatnet.data))
+//        val response = SplatoonAPIClient.coralAPI.fetchCoopHistory(mapOf("splatnetAuthData" to sessionData.splatnet.data))
+        val response = SplatoonAPIClient.coralAPI.fetchCoopHistory()
         Log.e("CoralDataViewModel", "Fetched coop history: $response")
         dataState = dataState.copy(coopResult = DataState.Success(response.coopHistory.coopResult))
       } catch(e: Exception) {
@@ -119,15 +120,14 @@ class CoralDataViewModel(context: Context? = null): ViewModel() {
   }
 
   fun getCoopHistoryDetail(id: String) {
-    val sessionData = (dataState.coralSession as? DataState.Success)?.data
-      ?: throw IllegalStateException("Session Data is null")
+//    val sessionData = (dataState.coralSession as? DataState.Success)?.data
+//      ?: throw IllegalStateException("Session Data is null")
 
     viewModelScope.launch {
       dataState = dataState.copy(coopHistoryDetails = dataState.coopHistoryDetails + (id to DataState.Loading))
       try {
         val response = SplatoonAPIClient.coralAPI.fetchCoopHistoryDetails(
           CoopHistoryDetailRequestBody(
-            splatnetAuthData = sessionData.splatnet.data,
             historyDetailRequest = CoopHistoryDetailRequest(id)
           )
         )

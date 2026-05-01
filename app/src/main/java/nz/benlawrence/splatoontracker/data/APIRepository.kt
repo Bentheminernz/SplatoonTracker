@@ -29,7 +29,8 @@ interface CoralAPI {
     suspend fun fetchSideOrderRecords(@Body request: Map<String, SplatnetAuthData>): SideOrderRecords
     
     @POST("splatnet3/coop/history")
-    suspend fun fetchCoopHistory(@Body request: Map<String, SplatnetAuthData>): CoopResultResponse
+//    suspend fun fetchCoopHistory(@Body request: Map<String, SplatnetAuthData>): CoopResultResponse
+    suspend fun fetchCoopHistory(): CoopResultResponse
     @POST("splatnet3/coop/history/details")
     suspend fun fetchCoopHistoryDetails(@Body request: CoopHistoryDetailRequestBody): CoopHistoryDetailResponse
 }
