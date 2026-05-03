@@ -25,9 +25,8 @@ fun EnemyResultCard(
   Column(
     modifier = Modifier
       .fillMaxWidth()
-      .padding(8.dp)
-      .background(MaterialTheme.colorScheme.surfaceVariant)
       .clip(RoundedCornerShape(16.dp))
+      .background(MaterialTheme.colorScheme.surfaceVariant)
   ) {
     results.forEach { result ->
       Row(
@@ -45,7 +44,7 @@ fun EnemyResultCard(
         )
 
         Text(
-          "${result.teamDefeatCount}(${result.defeatCount}) / Appearances x${result.popCount}"
+          " ${result.teamDefeatCount} (${result.defeatCount}) / Appearances x${result.popCount}"
         )
       }
     }

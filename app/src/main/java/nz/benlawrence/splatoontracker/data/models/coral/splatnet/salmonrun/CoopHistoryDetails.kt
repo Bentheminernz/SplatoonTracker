@@ -3,6 +3,7 @@ package nz.benlawrence.splatoontracker.data.models.coral.splatnet.salmonrun
 import kotlinx.serialization.Serializable
 import nz.benlawrence.splatoontracker.data.models.coral.SplatnetAuthData
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.Image
+import nz.benlawrence.splatoontracker.ui.components.PlayerCardData
 
 // --- Request types ---
 
@@ -70,6 +71,16 @@ data class MemberResultDetail(
   val weapons: List<WeaponDetail>
 )
 
+fun MemberResultDetail.toPlayerCardData() = PlayerCardData(
+  player = this.player,
+  weapons = this.weapons,
+  specialWeapon = this.specialWeapon,
+  defeatEnemyCount = this.defeatEnemyCount,
+  goldenDeliverCount = this.goldenDeliverCount,
+  rescueCount = this.rescueCount,
+  deliverCount = this.deliverCount
+)
+
 // Renamed from MyResult to avoid clash
 data class MyResultDetail(
   val defeatEnemyCount: Int,
@@ -81,6 +92,16 @@ data class MyResultDetail(
   val rescuedCount: Int,
   val specialWeapon: SpecialWeapon,
   val weapons: List<WeaponDetail>
+)
+
+fun MyResultDetail.toPlayerCardData() = PlayerCardData(
+  player = this.player,
+  weapons = this.weapons,
+  specialWeapon = this.specialWeapon,
+  defeatEnemyCount = this.defeatEnemyCount,
+  goldenDeliverCount = this.goldenDeliverCount,
+  rescueCount = this.rescueCount,
+  deliverCount = this.deliverCount
 )
 
 // Renamed from WaveResult to avoid clash

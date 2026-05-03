@@ -47,8 +47,8 @@ fun NameplateItem(
       )
 
       Text(
-//        text = player.name,
-        text = "Ben",
+        text = player.name,
+//        text = "Ben",
         fontFamily = BlitzFontFamily,
         fontWeight = FontWeight.Bold,
         textAlign = TextAlign.Center,

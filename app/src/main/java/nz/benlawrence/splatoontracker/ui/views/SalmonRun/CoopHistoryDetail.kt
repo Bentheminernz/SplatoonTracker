@@ -1,6 +1,8 @@
 package nz.benlawrence.splatoontracker.ui.views.SalmonRun
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -16,7 +18,11 @@ import androidx.navigation.NavController
 import nz.benlawrence.splatoontracker.R
 import nz.benlawrence.splatoontracker.data.CoralDataViewModel
 import nz.benlawrence.splatoontracker.data.DataState
+import nz.benlawrence.splatoontracker.data.models.coral.splatnet.salmonrun.CoopHistoryDetail
+import nz.benlawrence.splatoontracker.data.models.coral.splatnet.salmonrun.MemberResult
+import nz.benlawrence.splatoontracker.data.models.coral.splatnet.salmonrun.MemberResultDetail
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.salmonrun.Nameplate
+import nz.benlawrence.splatoontracker.data.models.coral.splatnet.salmonrun.toPlayerCardData
 import nz.benlawrence.splatoontracker.ui.components.CoopHistoryDetailHeader
 import nz.benlawrence.splatoontracker.ui.components.CoopHistoryPlayerCard
 import nz.benlawrence.splatoontracker.ui.components.EnemyResultCard
@@ -49,33 +55,34 @@ fun CoopHistoryDetail(
           coopStage = history.coopStage,
           resultWave = history.resultWave,
           playedTime = history.playedTime,
+          weapons = history.weapons,
           boss = history.boss
         )
 
-        NameplateItem(
-          player = history.myResult.player
-        )
-
-        LazyRow {
+        LazyRow(
+          horizontalArrangement = Arrangement.SpaceBetween,
+          modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+        ) {
           items(history.waveResults) { wave ->
             WaveCard(wave = wave)
           }
         }
 
         Column(
+          verticalArrangement = Arrangement.spacedBy(8.dp),
           modifier = Modifier
             .padding(horizontal = 16.dp)
         ) {
+          CoopHistoryPlayerCard(result = history.myResult.toPlayerCardData())
           history.memberResults.forEach { memberResultDetail ->
-            CoopHistoryPlayerCard(result = memberResultDetail)
+            CoopHistoryPlayerCard(result = memberResultDetail.toPlayerCardData())
           }
 
           EnemyResultCard(
             results = history.enemyResults
           )
-
-          Text("Coop History Detail for ID: $coopHistoryId")
-          Text("Result: ${history}")
         }
       }
   }
