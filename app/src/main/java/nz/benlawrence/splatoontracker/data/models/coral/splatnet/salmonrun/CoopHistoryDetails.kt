@@ -3,6 +3,7 @@ package nz.benlawrence.splatoontracker.data.models.coral.splatnet.salmonrun
 import kotlinx.serialization.Serializable
 import nz.benlawrence.splatoontracker.data.models.coral.SplatnetAuthData
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.Image
+import nz.benlawrence.splatoontracker.data.models.coral.splatnet.Nameplate
 import nz.benlawrence.splatoontracker.ui.components.PlayerCardData
 
 // --- Request types ---
@@ -64,7 +65,7 @@ data class MemberResultDetail(
   val deliverCount: Int,
   val goldenAssistCount: Int,
   val goldenDeliverCount: Int,
-  val player: Player,
+  val player: SalmonRunPlayer,
   val rescueCount: Int,
   val rescuedCount: Int,
   val specialWeapon: SpecialWeapon,
@@ -81,13 +82,12 @@ fun MemberResultDetail.toPlayerCardData() = PlayerCardData(
   deliverCount = this.deliverCount
 )
 
-// Renamed from MyResult to avoid clash
 data class MyResultDetail(
   val defeatEnemyCount: Int,
   val deliverCount: Int,
   val goldenAssistCount: Int,
   val goldenDeliverCount: Int,
-  val player: Player,
+  val player: SalmonRunPlayer,
   val rescueCount: Int,
   val rescuedCount: Int,
   val specialWeapon: SpecialWeapon,
@@ -126,7 +126,7 @@ data class Enemy(
   val name: String
 )
 
-data class Player(
+data class SalmonRunPlayer(
   val __isPlayer: String,
   val byname: String,
   val id: String,
@@ -143,27 +143,12 @@ data class SpecialWeapon(
   val weaponId: Int
 )
 
-data class Nameplate(
-  val background: Background,
-  val badges: List<Badge>
-)
-
 data class Uniform(
   val id: String,
   val image: Image,
   val name: String
 )
 
-data class Background(
-  val id: String,
-  val image: Image,
-  val textColor: TextColor
-)
-
-data class Badge(
-  val id: String,
-  val image: Image
-)
 
 data class TextColor(
   val a: Number,

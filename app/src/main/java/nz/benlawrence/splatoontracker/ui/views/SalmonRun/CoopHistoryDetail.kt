@@ -21,7 +21,6 @@ import nz.benlawrence.splatoontracker.data.DataState
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.salmonrun.CoopHistoryDetail
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.salmonrun.MemberResult
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.salmonrun.MemberResultDetail
-import nz.benlawrence.splatoontracker.data.models.coral.splatnet.salmonrun.Nameplate
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.salmonrun.toPlayerCardData
 import nz.benlawrence.splatoontracker.ui.components.CoopHistoryDetailHeader
 import nz.benlawrence.splatoontracker.ui.components.CoopHistoryPlayerCard

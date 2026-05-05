@@ -19,12 +19,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import nz.benlawrence.splatoontracker.data.models.coral.splatnet.salmonrun.Player
+import nz.benlawrence.splatoontracker.data.models.coral.splatnet.salmonrun.SalmonRunPlayer
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.salmonrun.SpecialWeapon
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.salmonrun.WeaponDetail
 
 data class PlayerCardData(
-  val player: Player,
+  val player: SalmonRunPlayer,
   val weapons: List<WeaponDetail>,
   val specialWeapon: SpecialWeapon,
   val defeatEnemyCount: Int,

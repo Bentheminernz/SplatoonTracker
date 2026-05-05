@@ -32,6 +32,7 @@ import nz.benlawrence.splatoontracker.data.CoralDataViewModel
 import nz.benlawrence.splatoontracker.data.SplatoonDataViewModel
 import nz.benlawrence.splatoontracker.data.UserPreferencesViewModel
 import nz.benlawrence.splatoontracker.ui.theme.SplatoonTrackerTheme
+import nz.benlawrence.splatoontracker.ui.views.BankaraBattleDetailView
 import nz.benlawrence.splatoontracker.ui.views.Challenge
 import nz.benlawrence.splatoontracker.ui.views.HomeScreen
 import nz.benlawrence.splatoontracker.ui.views.SalmonRun.CoopHistoryDetail
@@ -96,37 +97,69 @@ fun SplatoonTrackerApp(
 ) {
   var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.HOME) }
 
+  // Create nav controllers outside the when block
+  val homeNavController = rememberNavController()
+  val grizzcoNavController = rememberNavController()
+  val challengeNavController = rememberNavController()
+  val settingsNavController = rememberNavController()
+  val splatnetNavController = rememberNavController()
+
+  fun navControllerFor(dest: AppDestinations) = when (dest) {
+    AppDestinations.HOME -> homeNavController
+    AppDestinations.GRIZZCO -> grizzcoNavController
+    AppDestinations.CHALLENGE -> challengeNavController
+    AppDestinations.SETTINGS -> settingsNavController
+    AppDestinations.SPLATNET -> splatnetNavController
+  }
+
   NavigationSuiteScaffold(
     navigationSuiteItems = {
       AppDestinations.entries.forEach {
         item(
           icon = {
             Icon(
-              painterResource(it.icon),
+              painter = painterResource(id = it.icon),
               contentDescription = it.label,
               modifier = Modifier.size(it.iconSize)
             )
           },
           label = { Text(it.label) },
           selected = it == currentDestination,
-          onClick = { currentDestination = it }
+          onClick = {
+            if (it == currentDestination) {
+              navControllerFor(it).popBackStack(
+                route = navControllerFor(it).graph.startDestinationRoute ?: return@item,
+                inclusive = false
+              )
+            } else {
+              currentDestination = it
+            }
+          }
         )
       }
     }
   ) {
     when (currentDestination) {
       AppDestinations.HOME -> {
-        val navController = rememberNavController()
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
           NavHost(
-            navController = navController,
+            navController = homeNavController,
             startDestination = "home",
             modifier = Modifier.padding(innerPadding)
           ) {
             composable("home") {
               HomeScreen(
                 viewModel = splatoonViewModel,
-                navController = navController
+                coralViewModel = coralViewModel,
+                navController = homeNavController
+              )
+            }
+            composable("bankara/detail/{id}") { backStackEntry ->
+              val id = backStackEntry.arguments?.getString("id")
+              BankaraBattleDetailView(
+                id = id ?: "",
+                viewModel = coralViewModel,
+                navController = homeNavController
               )
             }
             // Add Home tab detail screens here, e.g.:
@@ -139,10 +172,9 @@ fun SplatoonTrackerApp(
       }
 
       AppDestinations.GRIZZCO -> {
-        val navController = rememberNavController()
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
           NavHost(
-            navController = navController,
+            navController = grizzcoNavController,
             startDestination = "salmon_run",
             modifier = Modifier.padding(innerPadding)
           ) {
@@ -150,7 +182,7 @@ fun SplatoonTrackerApp(
               SalmonRunSchedule(
                 viewModel = splatoonViewModel,
                 coralViewModel = coralViewModel,
-                navController = navController
+                navController = grizzcoNavController
               )
             }
             composable("coop_detail/{id}") { backStackEntry ->
@@ -158,7 +190,7 @@ fun SplatoonTrackerApp(
               CoopHistoryDetail(
                 coopHistoryId = id ?: "",
                 viewModel = coralViewModel,
-                navController = navController
+                navController = grizzcoNavController
               )
             }
           }
@@ -166,17 +198,16 @@ fun SplatoonTrackerApp(
       }
 
       AppDestinations.CHALLENGE -> {
-        val navController = rememberNavController()
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
           NavHost(
-            navController = navController,
+            navController = challengeNavController,
             startDestination = "challenge",
             modifier = Modifier.padding(innerPadding)
           ) {
             composable("challenge") {
               Challenge(
                 viewModel = splatoonViewModel,
-                navController = navController
+                navController = challengeNavController
               )
             }
           }
@@ -184,17 +215,16 @@ fun SplatoonTrackerApp(
       }
 
       AppDestinations.SETTINGS -> {
-        val navController = rememberNavController()
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
           NavHost(
-            navController = navController,
+            navController = settingsNavController,
             startDestination = "settings",
             modifier = Modifier.padding(innerPadding)
           ) {
             composable("settings") {
               Settings(
                 viewModel = userPreferencesViewModel,
-                navController = navController,
+                navController = settingsNavController,
                 onRequestNotificationPermission = onRequestNotificationPermission
               )
             }
@@ -203,17 +233,16 @@ fun SplatoonTrackerApp(
       }
 
       AppDestinations.SPLATNET -> {
-        val navController = rememberNavController()
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
           NavHost(
-            navController = navController,
+            navController = splatnetNavController,
             startDestination = "splatnet",
             modifier = Modifier.padding(innerPadding)
           ) {
             composable("splatnet") {
               Splatnet(
                 viewModel = coralViewModel,
-                navController = navController
+                navController = splatnetNavController
               )
             }
           }

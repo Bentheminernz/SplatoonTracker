@@ -42,7 +42,7 @@ fun WaveCard(
     Text(wave.eventWave?.name ?: "-")
 
     Row(
-      verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+      verticalAlignment = Alignment.CenterVertically
     ) {
       Image(
         painter = painterResource(id = R.drawable.gold_egg),

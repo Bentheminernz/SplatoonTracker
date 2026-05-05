@@ -1,5 +1,11 @@
 package nz.benlawrence.splatoontracker.data.models.coral.splatnet
 
+import nz.benlawrence.splatoontracker.data.models.coral.splatnet.battles.AdditionalGearPower
+import nz.benlawrence.splatoontracker.data.models.coral.splatnet.battles.Brand
+import nz.benlawrence.splatoontracker.data.models.coral.splatnet.battles.OriginalImage
+import nz.benlawrence.splatoontracker.data.models.coral.splatnet.battles.PrimaryGearPower
+import nz.benlawrence.splatoontracker.data.models.coral.splatnet.salmonrun.TextColor
+
 typealias UnknownScalar = Any?
 
 data class Image(
@@ -65,4 +71,73 @@ data class WallpaperReward(
   val name: String,
   val sampleImage: Image,
   val downloadImages: List<DownloadImage>,
+)
+
+data class Nameplate(
+  val background: Background,
+  val badges: List<Badge>
+)
+
+data class Background(
+  val id: String,
+  val image: Image,
+  val textColor: TextColor
+)
+
+data class Badge(
+  val id: String?,
+  val image: Image?
+)
+
+data class VsMode(
+  val id: String,
+  val mode: String
+)
+
+data class ClothingGear(
+  val __isGear: String,
+  val additionalGearPowers: List<AdditionalGearPower>,
+  val brand: Brand,
+  val image: Image?,
+  val thumbnailImage: ThumbnailImage?,
+  val name: String,
+  val originalImage: OriginalImage,
+  val primaryGearPower: PrimaryGearPower
+)
+
+data class HeadGear(
+  val __isGear: String,
+  val additionalGearPowers: List<AdditionalGearPower>,
+  val brand: Brand,
+  val image: Image?,
+  val thumbnailImage: ThumbnailImage?,
+  val name: String,
+  val originalImage: OriginalImage,
+  val primaryGearPower: PrimaryGearPower
+)
+
+data class ShoesGear(
+  val __isGear: String,
+  val additionalGearPowers: List<AdditionalGearPower>,
+  val brand: Brand,
+  val image: Image?,
+  val thumbnailImage: ThumbnailImage?,
+  val name: String,
+  val originalImage: OriginalImage,
+  val primaryGearPower: PrimaryGearPower
+)
+
+data class ThumbnailImage(
+  val url: String
+)
+
+data class VsRule(
+  val id: String,
+  val name: String
+)
+
+data class VsStage(
+  val id: String,
+  val image: Image,
+  val name: String
 )

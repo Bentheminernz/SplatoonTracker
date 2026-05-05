@@ -21,7 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
-import nz.benlawrence.splatoontracker.data.models.coral.splatnet.salmonrun.Player
+import nz.benlawrence.splatoontracker.data.models.coral.splatnet.battles.Player
 import nz.benlawrence.splatoontracker.ui.theme.BlitzFontFamily
 
 @Composable
@@ -68,9 +68,9 @@ fun NameplateItem(
         )
 
         LazyRow {
-          items(player.nameplate.badges) { badge ->
+          items(player.nameplate.badges.filterNotNull()) { badge ->
             AsyncImage(
-              model = badge.image.url,
+              model = badge.image?.url ?: "",
               contentDescription = "Image of one of the users badges",
               modifier = Modifier.size(28.dp)
             )

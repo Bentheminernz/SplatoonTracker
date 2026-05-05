@@ -3,7 +3,11 @@ package nz.benlawrence.splatoontracker.ui.views
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -11,14 +15,21 @@ import nz.benlawrence.splatoontracker.data.SplatoonDataState
 import nz.benlawrence.splatoontracker.data.SplatoonDataViewModel
 import androidx.compose.material3.Text
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil3.compose.AsyncImage
+import nz.benlawrence.splatoontracker.data.CoralDataViewModel
+import nz.benlawrence.splatoontracker.data.DataState
 import nz.benlawrence.splatoontracker.data.models.Splatoon3Ink.toDisplayData
 import nz.benlawrence.splatoontracker.ui.components.ScheduleCard
 import nz.benlawrence.splatoontracker.ui.components.ScheduleDisplayData
@@ -29,6 +40,7 @@ import java.time.Instant
 @Composable
 fun HomeScreen(
   viewModel: SplatoonDataViewModel,
+  coralViewModel: CoralDataViewModel,
   navController: NavController
 ) {
   Column {
@@ -58,6 +70,7 @@ fun HomeScreen(
         }
 
         var selectedMatch by remember { mutableStateOf<MatchType?>(null) }
+        var showBankaraOpenSheet by remember { mutableStateOf<Boolean>(false) }
 
         Column(
           verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -106,6 +119,11 @@ fun HomeScreen(
             rotation = -2f,
             onViewSchedule = { selectedMatch = MatchType.BankaraOpen },
           )
+          Button(onClick = {
+            showBankaraOpenSheet = true
+          }) {
+            Text("show sheet")
+          }
 
           ScheduleCard(
             typename = currentX.xMatchSetting.__typename,
@@ -128,6 +146,37 @@ fun HomeScreen(
           selectedMatch?.let { type ->
             ModalBottomSheet(onDismissRequest = { selectedMatch = null }) {
               UpcomingBattleSheet(data = state.data, type = type)
+            }
+          }
+
+          if (showBankaraOpenSheet) {
+            ModalBottomSheet(onDismissRequest = { showBankaraOpenSheet = false }) {
+              LaunchedEffect(Unit) {
+                coralViewModel.getBankaraBattleHistories()
+              }
+
+              when (val bankaraState = coralViewModel.dataState.bankaraBattleHistories) {
+                is DataState.Success ->
+                  LazyColumn {
+                    val allMaps = bankaraState.data.historyGroups.nodes
+                      .flatMap {
+                        it.historyDetails.nodes
+                      }
+//                      .filter {
+//                        it.vsStage.id == currentBankara.bankaraMatchSettings.first().vsStages.first().id
+//                      }
+                    items(allMaps) { map ->
+                      Button(onClick = {
+                        navController.navigate("bankara/detail/${map.id}")
+                      }) {
+                        Text(map.vsStage.name)
+                      }
+                    }
+                  }
+
+                is DataState.Loading -> Text("loading")
+                is DataState.Error -> Text(bankaraState.message)
+              }
             }
           }
         }
