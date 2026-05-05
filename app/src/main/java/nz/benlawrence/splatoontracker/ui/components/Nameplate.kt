@@ -1,11 +1,12 @@
 package nz.benlawrence.splatoontracker.ui.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
@@ -14,11 +15,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.battles.Player
@@ -28,6 +29,15 @@ import nz.benlawrence.splatoontracker.ui.theme.BlitzFontFamily
 fun NameplateItem(
   player: Player
 ) {
+  // Convert API textColor (0-1 range) to Compose Color
+  val textColor = player.nameplate.background.textColor
+  val nameplateFontColor = Color(
+    red = textColor.r.toFloat(),
+    green = textColor.g.toFloat(),
+    blue = textColor.b.toFloat(),
+    alpha = textColor.a.toFloat()
+  )
+
   Box(
     modifier = Modifier
       .fillMaxWidth()
@@ -43,7 +53,9 @@ fun NameplateItem(
       Text(
         text = player.byname,
         fontFamily = BlitzFontFamily,
-        textAlign = TextAlign.Left
+        textAlign = TextAlign.Left,
+        fontSize = 18.sp,
+        color = nameplateFontColor
       )
 
       Text(
@@ -53,7 +65,8 @@ fun NameplateItem(
         fontWeight = FontWeight.Bold,
         textAlign = TextAlign.Center,
         fontSize = 32.sp,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        color = nameplateFontColor
       )
 
       Row(
@@ -64,7 +77,9 @@ fun NameplateItem(
         Text(
           "#${player.nameId}",
           fontFamily = BlitzFontFamily,
-          textAlign = TextAlign.Left
+          textAlign = TextAlign.Left,
+          fontSize = 18.sp,
+          color = nameplateFontColor
         )
 
         LazyRow {

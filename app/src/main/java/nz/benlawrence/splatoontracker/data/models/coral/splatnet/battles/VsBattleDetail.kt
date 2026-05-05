@@ -56,30 +56,36 @@ data class BankaraMatch(
     val weaponPower: Any
 )
 
+interface VsTeam {
+    val order: Int
+    val players: List<Player>
+    val judgement: String
+}
+
 data class MyTeam(
     val color: Color,
     val festStreakWinCount: Any,
     val festTeamName: Any,
     val festUniformBonusRate: Any,
     val festUniformName: Any,
-    val judgement: String,
-    val order: Int,
-    val players: List<Player>,
+    override val judgement: String,
+    override val order: Int,
+    override val players: List<Player>,
     val result: ResultX,
     val tricolorRole: Any
-)
+) : VsTeam
 
 data class OtherTeam(
     val color: Color,
     val festStreakWinCount: Any,
     val festTeamName: Any,
     val festUniformName: Any,
-    val judgement: String,
-    val order: Int,
-    val players: List<Player>,
+    override val judgement: String,
+    override val order: Int,
+    override val players: List<Player>,
     val result: ResultX,
     val tricolorRole: Any
-)
+) : VsTeam
 
 data class BattleDetailPlayer(
     val __isPlayer: String,
