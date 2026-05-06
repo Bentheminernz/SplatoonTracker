@@ -158,18 +158,34 @@ fun HomeScreen(
               when (val bankaraState = coralViewModel.dataState.bankaraBattleHistories) {
                 is DataState.Success ->
                   LazyColumn {
-                    val allMaps = bankaraState.data.historyGroups.nodes
+                    val allCurrentMaps = currentBankara.bankaraMatchSettings
+                      .filter {
+                        it.bankaraMode == "OPEN"
+                      }
+                      .flatMap {
+                        it.vsStages
+                      }
+
+                    val allPlayerMaps = bankaraState.data.historyGroups.nodes
                       .flatMap {
                         it.historyDetails.nodes
                       }
-//                      .filter {
-//                        it.vsStage.id == currentBankara.bankaraMatchSettings.first().vsStages.first().id
-//                      }
-                    items(allMaps) { map ->
+                      .filter {
+                        it.vsStage.id in allCurrentMaps.map { stage -> stage.id }
+                      }
+
+
+                    items(allPlayerMaps) { map ->
                       Button(onClick = {
                         navController.navigate("bankara/detail/${map.id}")
                       }) {
                         Text(map.vsStage.name)
+                      }
+                    }
+
+                    if (allPlayerMaps.isEmpty()) {
+                      item {
+                        Text("No battles found for current maps.")
                       }
                     }
                   }

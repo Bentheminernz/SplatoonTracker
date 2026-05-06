@@ -94,29 +94,7 @@ data class VsMode(
   val mode: String
 )
 
-data class ClothingGear(
-  val __isGear: String,
-  val additionalGearPowers: List<AdditionalGearPower>,
-  val brand: Brand,
-  val image: Image?,
-  val thumbnailImage: ThumbnailImage?,
-  val name: String,
-  val originalImage: OriginalImage,
-  val primaryGearPower: PrimaryGearPower
-)
-
-data class HeadGear(
-  val __isGear: String,
-  val additionalGearPowers: List<AdditionalGearPower>,
-  val brand: Brand,
-  val image: Image?,
-  val thumbnailImage: ThumbnailImage?,
-  val name: String,
-  val originalImage: OriginalImage,
-  val primaryGearPower: PrimaryGearPower
-)
-
-data class ShoesGear(
+data class Gear(
   val __isGear: String,
   val additionalGearPowers: List<AdditionalGearPower>,
   val brand: Brand,

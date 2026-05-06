@@ -1,12 +1,10 @@
 package nz.benlawrence.splatoontracker.data.models.coral.splatnet.battles
 
 import kotlinx.serialization.Serializable
-import nz.benlawrence.splatoontracker.data.models.coral.splatnet.ClothingGear
-import nz.benlawrence.splatoontracker.data.models.coral.splatnet.HeadGear
+import nz.benlawrence.splatoontracker.data.models.coral.splatnet.Gear
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.Image
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.MaskingImage
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.Nameplate
-import nz.benlawrence.splatoontracker.data.models.coral.splatnet.ShoesGear
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.SubWeapon
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.VsMode
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.VsRule
@@ -90,14 +88,14 @@ data class OtherTeam(
 data class BattleDetailPlayer(
     val __isPlayer: String,
     val byname: String,
-    val clothingGear: ClothingGear,
-    val headGear: HeadGear,
+    val clothingGear: Gear,
+    val headGear: Gear,
     val id: String,
     val name: String,
     val nameId: String,
     val nameplate: Nameplate,
     val paint: Int,
-    val shoesGear: ShoesGear
+    val shoesGear: Gear
 )
 
 data class BankaraPower(
@@ -115,10 +113,10 @@ data class Player(
     val __isPlayer: String,
     val byname: String,
     val callSign: Any,
-    val clothingGear: ClothingGear,
+    val clothingGear: Gear,
     val crown: Boolean,
     val festDragonCert: String,
-    val headGear: HeadGear,
+    val headGear: Gear,
     val id: String,
     val isMyself: Boolean,
     val name: String,
@@ -126,7 +124,7 @@ data class Player(
     val nameplate: Nameplate,
     val paint: Int,
     val result: Result?,
-    val shoesGear: ShoesGear,
+    val shoesGear: Gear,
     val species: String,
     val weapon: Weapon
 )

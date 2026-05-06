@@ -1,6 +1,7 @@
 package nz.benlawrence.splatoontracker.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,6 +23,7 @@ import nz.benlawrence.splatoontracker.data.models.coral.splatnet.battles.Result
 @Composable
 fun VsBattlePlayerCard(
   player: Player,
+  onClick: (Player) -> Unit,
 ) {
   val stats = player.result
   Row(
@@ -32,6 +34,9 @@ fun VsBattlePlayerCard(
       .clip(RoundedCornerShape(16.dp))
       .background(Color.White.copy(alpha = 0.1f))
       .padding(8.dp)
+      .clickable {
+        onClick(player)
+      }
   ) {
     Row(
       verticalAlignment = Alignment.CenterVertically,
