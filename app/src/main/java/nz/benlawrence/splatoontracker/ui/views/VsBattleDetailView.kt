@@ -1,7 +1,6 @@
 package nz.benlawrence.splatoontracker.ui.views
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,7 +20,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import nz.benlawrence.splatoontracker.data.CoralDataViewModel
 import nz.benlawrence.splatoontracker.data.DataState
-import nz.benlawrence.splatoontracker.data.models.coral.splatnet.battles.BattleDetailPlayer
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.battles.Player
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.battles.VsTeam
 import nz.benlawrence.splatoontracker.ui.components.GearItem
@@ -31,8 +29,9 @@ import nz.benlawrence.splatoontracker.ui.components.VsBattlePlayerCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BankaraBattleDetailView(
+fun VsBattleDetailView(
   id: String,
+  matchType: MatchType,
   viewModel: CoralDataViewModel,
   navController: NavController
 ) {
@@ -46,6 +45,7 @@ fun BankaraBattleDetailView(
 
   Column(
     modifier = Modifier
+      .padding(horizontal = 16.dp)
       .verticalScroll(rememberScrollState())
   ) {
     when (val data = viewModel.dataState.bankaraHistoryDetails[id] ?: DataState.Loading) {

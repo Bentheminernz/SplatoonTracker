@@ -96,6 +96,11 @@ fun HomeScreen(
             rotation = -2f,
             onViewSchedule = { selectedMatch = MatchType.Regular }
           )
+          Button(onClick = {
+            selectedBattleMatch = MatchType.Regular
+          }) {
+            Text("View Battles")
+          }
 
           ScheduleCard(
             typename = "${currentBankara.bankaraMatchSettings.first { it.bankaraMode == "CHALLENGE" }.__typename}Challenge",
@@ -157,18 +162,14 @@ fun HomeScreen(
                 coralViewModel.getRegularBattleHistories()
               }
 
-              when (type) {
-                is MatchType.BankaraOpen ->
-                  UserBattlesSheet(
-                    matchType = type,
-                    regularState = coralViewModel.dataState.regularBattleHistories,
-                    bankaraState = coralViewModel.dataState.bankaraBattleHistories,
-                    currentBankara = currentBankara,
-                    navController = navController
-                  )
-
-                else -> Text("Not implemented")
-              }
+              UserBattlesSheet(
+                matchType = type,
+                regularState = coralViewModel.dataState.regularBattleHistories,
+                bankaraState = coralViewModel.dataState.bankaraBattleHistories,
+                currentRegular = currentRegular,
+                currentBankara = currentBankara,
+                navController = navController
+              )
             }
           }
         }

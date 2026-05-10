@@ -32,9 +32,10 @@ import nz.benlawrence.splatoontracker.data.CoralDataViewModel
 import nz.benlawrence.splatoontracker.data.SplatoonDataViewModel
 import nz.benlawrence.splatoontracker.data.UserPreferencesViewModel
 import nz.benlawrence.splatoontracker.ui.theme.SplatoonTrackerTheme
-import nz.benlawrence.splatoontracker.ui.views.BankaraBattleDetailView
+import nz.benlawrence.splatoontracker.ui.views.VsBattleDetailView
 import nz.benlawrence.splatoontracker.ui.views.Challenge
 import nz.benlawrence.splatoontracker.ui.views.HomeScreen
+import nz.benlawrence.splatoontracker.ui.views.MatchType
 import nz.benlawrence.splatoontracker.ui.views.SalmonRun.CoopHistoryDetail
 import nz.benlawrence.splatoontracker.ui.views.SalmonRun.SalmonRunSchedule
 import nz.benlawrence.splatoontracker.ui.views.Settings
@@ -154,19 +155,23 @@ fun SplatoonTrackerApp(
                 navController = homeNavController
               )
             }
-            composable("bankara/detail/{id}") { backStackEntry ->
+            composable("vsbattle/{type}/detail/{id}") { backStackEntry ->
+              val type = backStackEntry.arguments?.getString("type")
               val id = backStackEntry.arguments?.getString("id")
-              BankaraBattleDetailView(
+              val matchType = when (type) {
+                "regular" -> MatchType.Regular
+                "bankara_challenge" -> MatchType.BankaraChallenge
+                "bankara_open" -> MatchType.BankaraOpen
+                "xbattle" -> MatchType.XBattle
+                else -> null
+              }
+              VsBattleDetailView(
                 id = id ?: "",
+                matchType = matchType ?: MatchType.Regular,
                 viewModel = coralViewModel,
                 navController = homeNavController
               )
             }
-            // Add Home tab detail screens here, e.g.:
-            // composable("schedule_detail/{id}") { backStackEntry ->
-            //     val id = backStackEntry.arguments?.getString("id")
-            //     ScheduleDetailScreen(id = id, navController = navController)
-            // }
           }
         }
       }

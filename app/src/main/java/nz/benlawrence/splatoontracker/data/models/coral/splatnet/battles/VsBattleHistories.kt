@@ -23,8 +23,13 @@ data class BankaraBattleHistoriesResponse(
 
 @Serializable
 data class RegularBattleHistoriesResponse(
-    val regularBattleHistory: VsBattleHistories
-)
+    val regularBattleHistory: RegularBattleHistory
+) {
+    data class RegularBattleHistory(
+        val latestBattleHistories: VsBattleHistories,
+        val currentFest: Any?
+    )
+}
 
 @Serializable
 data class VsBattleHistories(

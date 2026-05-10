@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import nz.benlawrence.splatoontracker.data.DataState
 import nz.benlawrence.splatoontracker.data.models.Splatoon3Ink.BankaraNode
+import nz.benlawrence.splatoontracker.data.models.Splatoon3Ink.RegularScheduleNode
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.battles.HistoryGroups
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.battles.VsBattleHistories
 import nz.benlawrence.splatoontracker.ui.views.MatchType
@@ -23,10 +24,18 @@ fun UserBattlesSheet(
   matchType: MatchType,
   regularState: DataState<VsBattleHistories>,
   bankaraState: DataState<VsBattleHistories>,
+  currentRegular: RegularScheduleNode,
   currentBankara: BankaraNode,
   navController: NavController
 ) {
   Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+    val pathType = when (matchType) {
+      MatchType.Regular -> "regular"
+      MatchType.BankaraOpen -> "bankara_open"
+      MatchType.BankaraChallenge -> "bankara_challenge"
+      MatchType.XBattle -> "xbattle"
+    }
+
     when (matchType) {
       MatchType.BankaraOpen -> DataStateContent(bankaraState) { data ->
         val currentStageIds = currentBankara.bankaraMatchSettings
@@ -42,20 +51,22 @@ fun UserBattlesSheet(
         BattleList(
           battles = battles,
           emptyText = "No battles found for current maps.",
-          onBattleClick = { navController.navigate("bankara/detail/${it.id}") },
+          onBattleClick = { navController.navigate("vsbattle/$pathType/detail/${it.id}") },
           battleLabel = { "${it.judgement.toTitleCase()} at ${it.vsStage.name}" }
         )
       }
 
       MatchType.Regular -> DataStateContent(regularState) { data ->
+        val currentStageIds = currentRegular.regularMatchSetting.vsStages.map { it.id }.toSet()
         val battles = data.historyGroups.nodes
           .flatMap { it.historyDetails.nodes }
+          .filter { it.vsStage.id in currentStageIds }
 
         BattleList(
           battles = battles,
           emptyText = "No regular battles found.",
-          onBattleClick = { navController.navigate("regular/detail/${it.id}") },
-          battleLabel = { "Battle at ${it.vsStage.name}" }
+          onBattleClick = { navController.navigate("vsbattle/$pathType/detail/${it.id}") },
+          battleLabel = { "${it.judgement.toTitleCase()} at ${it.vsStage.name}" }
         )
       }
 

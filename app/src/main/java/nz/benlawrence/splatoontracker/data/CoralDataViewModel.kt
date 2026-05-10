@@ -205,7 +205,9 @@ class CoralDataViewModel(context: Context? = null): ViewModel() {
       try {
         val response = SplatoonAPIClient.coralAPI.fetchRegularBattleHistory()
         Log.e("CoralDataViewModel", "Fetched regular battle histories: $response")
-        dataState = dataState.copy(regularBattleHistories = DataState.Success(response.regularBattleHistory))
+        // discard latest fest currently
+        // TODO: figure out how to handle it
+        dataState = dataState.copy(regularBattleHistories = DataState.Success(response.regularBattleHistory.latestBattleHistories))
       } catch (e: Exception) {
         dataState = dataState.copy(
           regularBattleHistories = DataState.Error(

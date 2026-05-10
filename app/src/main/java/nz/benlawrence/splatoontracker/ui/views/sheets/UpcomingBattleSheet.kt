@@ -90,7 +90,13 @@ fun UpcomingBattleSheet(
                   matchingBattles.forEach { battle ->
                     Button(onClick = {
                       closeModal()
-                      navController.navigate("bankara/detail/${battle.id}")
+                      val type = when (type) {
+                        is MatchType.Regular -> "regular"
+                        is MatchType.BankaraChallenge -> "bankara_challenge"
+                        is MatchType.BankaraOpen -> "bankara_open"
+                        is MatchType.XBattle -> "xbattle"
+                      }
+                      navController.navigate("vsbattle/$type/detail/${battle.id}")
                     }) {
                       Text("${battle.vsStage.name} — ${battle.judgement.toTitleCase()}")
                     }
