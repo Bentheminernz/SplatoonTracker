@@ -10,7 +10,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import nz.benlawrence.splatoontracker.data.models.coral.SessionRequest
 import nz.benlawrence.splatoontracker.data.models.coral.SessionResponse
-import nz.benlawrence.splatoontracker.data.models.coral.splatnet.battles.BankaraBattleHistories
+import nz.benlawrence.splatoontracker.data.models.coral.splatnet.battles.VsBattleHistories
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.battles.BankaraBattleHistoriesRequest
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.battles.VsBattleDetail
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.salmonrun.CoopHistoryDetailRequest
@@ -195,6 +195,29 @@ class CoralDataViewModel(context: Context? = null): ViewModel() {
     }
   }
 
+  fun getRegularBattleHistories() {
+    //    val sessionData = (dataState.coralSession as? DataState.Success)?.data
+//      ?: throw IllegalStateException("Session Data is null")
+
+
+    viewModelScope.launch {
+      dataState = dataState.copy(regularBattleHistories = DataState.Loading)
+      try {
+        val response = SplatoonAPIClient.coralAPI.fetchRegularBattleHistory()
+        Log.e("CoralDataViewModel", "Fetched regular battle histories: $response")
+        dataState = dataState.copy(regularBattleHistories = DataState.Success(response.regularBattleHistory))
+      } catch (e: Exception) {
+        dataState = dataState.copy(
+          regularBattleHistories = DataState.Error(
+            e.message ?: "An error has occurred"
+          )
+        )
+        Log.e("CoralDataViewModel", "Error fetching regular battle histories", e)
+        e.printStackTrace()
+      }
+    }
+  }
+
   fun clearSessionCache() {
     sessionCache?.clearSession()
     dataState = dataState.copy(coralSession = DataState.Loading)
@@ -214,6 +237,7 @@ data class CoralDataState(
   val sideOrderRecords: DataState<SideOrderRecords> = DataState.Loading,
   val coopResult: DataState<CoopResult> = DataState.Loading,
   val coopHistoryDetails: Map<String, DataState<CoopHistoryDetailResponse>> = emptyMap(),
-  val bankaraBattleHistories: DataState<BankaraBattleHistories> = DataState.Loading,
-  val bankaraHistoryDetails: Map<String, DataState<VsBattleDetail>> = emptyMap()
+  val bankaraBattleHistories: DataState<VsBattleHistories> = DataState.Loading,
+  val bankaraHistoryDetails: Map<String, DataState<VsBattleDetail>> = emptyMap(),
+  val regularBattleHistories: DataState<VsBattleHistories> = DataState.Loading,
 )

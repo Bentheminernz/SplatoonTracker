@@ -119,3 +119,14 @@ data class VsStage(
   val image: Image,
   val name: String
 )
+
+data class Summary(
+  val assistAverage: Double,
+  val deathAverage: Double,
+  val killAverage: Double,
+  val lose: Int,
+  val perUnitTimeMinute: Int,
+  val specialAverage: Double,
+  val win: Int
+)
+

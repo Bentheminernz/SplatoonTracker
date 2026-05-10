@@ -18,7 +18,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.navigation.NavController
 import nz.benlawrence.splatoontracker.data.CoralDataViewModel
 import nz.benlawrence.splatoontracker.data.DataState

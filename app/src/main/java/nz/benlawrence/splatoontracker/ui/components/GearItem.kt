@@ -3,6 +3,7 @@ package nz.benlawrence.splatoontracker.ui.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,7 +19,10 @@ import nz.benlawrence.splatoontracker.data.models.coral.splatnet.Gear
 fun GearItem(
   gear: Gear
 ) {
-  Column {
+  Column(
+    verticalArrangement = Arrangement.Center,
+    modifier = Modifier.fillMaxWidth()
+  ) {
     AsyncImage(
       model = gear.image?.url ?: "",
       contentDescription = "Image of ${gear.name}",
@@ -35,7 +39,7 @@ fun GearItem(
         contentScale = ContentScale.Crop,
         error = painterResource(id = R.drawable.gold),
         modifier = Modifier
-          .size(24.dp)
+          .size(36.dp)
       )
 
       gear.additionalGearPowers.forEach { gear ->
@@ -45,7 +49,7 @@ fun GearItem(
           contentScale = ContentScale.Crop,
           error = painterResource(id = R.drawable.gold),
           modifier = Modifier
-            .size(20.dp)
+            .size(30.dp)
         )
       }
     }

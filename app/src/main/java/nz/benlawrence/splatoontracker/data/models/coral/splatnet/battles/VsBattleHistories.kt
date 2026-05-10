@@ -1,8 +1,8 @@
 package nz.benlawrence.splatoontracker.data.models.coral.splatnet.battles
 
 import kotlinx.serialization.Serializable
-import nz.benlawrence.splatoontracker.data.models.coral.splatnet.Image
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.MaskingImage
+import nz.benlawrence.splatoontracker.data.models.coral.splatnet.Summary
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.VsMode
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.VsRule
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.VsStage
@@ -18,32 +18,31 @@ data class BankaraBattleHistoriesRequest(
 
 @Serializable
 data class BankaraBattleHistoriesResponse(
-    val bankaraBattleHistories: BankaraBattleHistories
+    val bankaraBattleHistories: VsBattleHistories
 )
 
-data class BankaraBattleHistories(
+@Serializable
+data class RegularBattleHistoriesResponse(
+    val regularBattleHistory: VsBattleHistories
+)
+
+@Serializable
+data class VsBattleHistories(
     val historyGroups: HistoryGroups,
     val historyGroupsOnlyFirst: HistoryGroupsOnlyFirst,
     val summary: Summary
-) {
-    data class Summary(
-        val assistAverage: Double,
-        val deathAverage: Double,
-        val killAverage: Double,
-        val lose: Int,
-        val perUnitTimeMinute: Int,
-        val specialAverage: Double,
-        val win: Int
-    )
-}
+)
 
+@Serializable
 data class HistoryGroups(
     val nodes: List<Node>
 ) {
+    @Serializable
     data class Node(
-        val bankaraMatchChallenge: BankaraMatchChallenge,
+        val bankaraMatchChallenge: BankaraMatchChallenge?,
         val historyDetails: HistoryDetails
     ) {
+        @Serializable
         data class BankaraMatchChallenge(
             val earnedUdemaePoint: Int,
             val isPromo: Boolean,
@@ -56,50 +55,69 @@ data class HistoryGroups(
             val winCount: Int
         )
 
+        @Serializable
         data class HistoryDetails(
             val nodes: List<Node>
         ) {
+            @Serializable
             data class Node(
                 val bankaraMatch: BankaraMatch,
                 val id: String,
                 val judgement: String,
-                val knockout: String,
+                val knockout: String?,
                 val myTeam: MyTeam,
-                val nextHistoryDetail: NextHistoryDetail,
+                val nextHistoryDetail: NextHistoryDetail?,
                 val player: Player,
-                val previousHistoryDetail: PreviousHistoryDetail,
-                val udemae: String,
+                val previousHistoryDetail: PreviousHistoryDetail?,
+                val udemae: String?,
                 val vsMode: VsMode,
                 val vsRule: VsRule,
                 val vsStage: VsStage
             ) {
-                data class BankaraMatch(val earnedUdemaePoint: Int)
-                data class MyTeam(val result: Result) {
-                    data class Result(val paintPoint: Any, val score: Int)
+                @Serializable
+                data class BankaraMatch(val earnedUdemaePoint: Int?)
+
+                @Serializable
+                data class MyTeam(val result: Result?) {
+                    @Serializable
+                    data class Result(val paintPoint: Int?, val score: Int?)
                 }
+
+                @Serializable
                 data class NextHistoryDetail(val id: String)
+
+                @Serializable
                 data class PreviousHistoryDetail(val id: String)
+
+                @Serializable
                 data class Player(val id: String, val weapon: Weapon)
             }
         }
     }
 }
 
+@Serializable
 data class HistoryGroupsOnlyFirst(
     val nodes: List<Node>
 ) {
+    @Serializable
     data class Node(
         val historyDetails: HistoryDetails
     ) {
+        @Serializable
         data class HistoryDetails(
             val nodes: List<Node>
         ) {
+            @Serializable
             data class Node(
                 val id: String,
                 val player: Player
             ) {
-                data class Player(val id: String, val weapon: Weapon) {
-                    data class Weapon(val id: String, val specialWeapon: SpecialWeapon) {
+                @Serializable
+                data class Player(val id: String, val weapon: FirstWeapon) {
+                    @Serializable
+                    data class FirstWeapon(val id: String, val specialWeapon: SpecialWeapon) {
+                        @Serializable
                         data class SpecialWeapon(val id: String, val maskingImage: MaskingImage)
                     }
                 }
