@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<network-security-config>xmlns:android="http://schemas.android.com/apk/res/android">
+<network-security-config xmlns:android="http://schemas.android.com/apk/res/android">
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="false">192.168.178.55</domain>
     </domain-config>

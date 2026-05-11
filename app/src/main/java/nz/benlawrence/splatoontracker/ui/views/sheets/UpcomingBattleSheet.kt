@@ -32,6 +32,12 @@ fun UpcomingBattleSheet(
   closeModal: () -> Unit
 ) {
   var selectedStageId by remember { mutableStateOf<Int?>(null) }
+  val pathType = when (type) {
+    is MatchType.Regular -> "regular"
+    is MatchType.BankaraChallenge -> "bankara_challenge"
+    is MatchType.BankaraOpen -> "bankara_open"
+    is MatchType.XBattle -> "xbattle"
+  }
 
   Column(
     modifier = Modifier.fillMaxWidth().padding(16.dp)
@@ -61,7 +67,7 @@ fun UpcomingBattleSheet(
           items(bankaraNodes) { item ->
             val setting = item.bankaraMatchSettings.first()
             val stages = setting.vsStages
-            val isSelected = selectedStageId?.let { id -> stages.any { it.vsStageId == id } } ?: false
+            val isSelected = selectedStageId?.let { id -> stages.any { id == "${it.vsStageId}${setting.vsRule.id}".toIntOrNull() } } ?: false
 
             val matchingBattles = if (isSelected && bankaraState is DataState.Success) {
               val stageIds = stages.map { it.id }
@@ -72,7 +78,7 @@ fun UpcomingBattleSheet(
 
             Column(
               modifier = Modifier.clickable {
-                selectedStageId = if (isSelected) null else stages.first().vsStageId
+                selectedStageId = if (isSelected) null else "${stages.first().vsStageId}${setting.vsRule.id}".toIntOrNull()
               }
             ) {
               VsStageItem(
@@ -90,13 +96,7 @@ fun UpcomingBattleSheet(
                   matchingBattles.forEach { battle ->
                     Button(onClick = {
                       closeModal()
-                      val type = when (type) {
-                        is MatchType.Regular -> "regular"
-                        is MatchType.BankaraChallenge -> "bankara_challenge"
-                        is MatchType.BankaraOpen -> "bankara_open"
-                        is MatchType.XBattle -> "xbattle"
-                      }
-                      navController.navigate("vsbattle/$type/detail/${battle.id}")
+                      navController.navigate("vsbattle/$pathType/detail/${battle.id}")
                     }) {
                       Text("${battle.vsStage.name} — ${battle.judgement.toTitleCase()}")
                     }

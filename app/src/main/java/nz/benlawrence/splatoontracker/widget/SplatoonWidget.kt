@@ -22,6 +22,7 @@ import nz.benlawrence.splatoontracker.data.models.Splatoon3Ink.Data
 import android.util.Log
 import coil3.toBitmap
 import nz.benlawrence.splatoontracker.R
+import nz.benlawrence.splatoontracker.utils.debugOnly
 
 
 class SplatoonWidget : GlanceAppWidget() {
@@ -39,13 +40,20 @@ class SplatoonWidget : GlanceAppWidget() {
         ?.regularMatchSetting
         ?.vsStages
         ?.map { stage ->
-          Log.d("SplatoonWidget", "Stage URL: ${stage.image.url}")
+          debugOnly {
+            Log.d("SplatoonWidget", "Stage URL: ${stage.image.url}")
+          }
           loadBitmap(context, stage.image.url)
         }
         ?: emptyList()
     } else emptyList()
 
-    Log.d("SplatoonWidget", "Stages loaded: ${stages.size}, nulls: ${stages.count { it == null }}")
+    debugOnly {
+      Log.d(
+        "SplatoonWidget",
+        "Stages loaded: ${stages.size}, nulls: ${stages.count { it == null }}"
+      )
+    }
     provideContent {
       SplatoonWidgetContent(state, stages)
     }
@@ -59,12 +67,16 @@ suspend fun loadBitmap(context: Context, url: String): Bitmap? {
     .build()
   return when (val result = context.imageLoader.execute(request)) {
     is SuccessResult -> {
-      Log.d("SplatoonWidget", "Image type: ${result.image::class.simpleName}")
+      debugOnly {
+        Log.d("SplatoonWidget", "Image type: ${result.image::class.simpleName}")
+      }
       result.image.toBitmap()
     }
 
     else -> {
-      Log.e("SplatoonWidget", "Failed to load bitmap: $result")
+      debugOnly {
+        Log.e("SplatoonWidget", "Failed to load bitmap: $result")
+      }
       null
     }
   }

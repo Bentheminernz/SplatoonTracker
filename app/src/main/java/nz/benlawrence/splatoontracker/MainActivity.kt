@@ -45,7 +45,7 @@ import nz.benlawrence.splatoontracker.widget.SplatoonWidgetWorker
 class MainActivity : ComponentActivity() {
   val splatoonViewModel: SplatoonDataViewModel = SplatoonDataViewModel()
   val userPreferencesViewModel: UserPreferencesViewModel by viewModels()
-  val coralViewModel: CoralDataViewModel by lazy { CoralDataViewModel(this) }
+  val coralViewModel: CoralDataViewModel by lazy { CoralDataViewModel(applicationContext) }
 
   private val requestPermissionLauncher = registerForActivityResult(
     ActivityResultContracts.RequestPermission()

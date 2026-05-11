@@ -110,6 +110,12 @@ fun HomeScreen(
             onViewSchedule = { selectedMatch = MatchType.BankaraChallenge },
           )
 
+          Button(onClick = {
+            selectedBattleMatch = MatchType.BankaraChallenge
+          }) {
+            Text("View Battles")
+          }
+
           ScheduleCard(
             typename = "${currentBankara.bankaraMatchSettings.first { it.bankaraMode == "OPEN" }.__typename}Open",
             currentNode = currentBankara.toDisplayData("OPEN"),

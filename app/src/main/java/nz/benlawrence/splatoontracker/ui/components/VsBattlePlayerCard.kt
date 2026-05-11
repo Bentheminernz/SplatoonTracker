@@ -63,19 +63,19 @@ fun VsBattlePlayerCard(
       Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier
-          .background(Color.Black)
           .clip(RoundedCornerShape(8.dp))
+          .background(Color.Black)
       ) {
         Text(
-          text = stats?.kill.toString() ?: "-"
+          text = stats?.kill?.toString() ?: "-"
         )
 
         Text(
-          text = stats?.death.toString() ?: "-"
+          text = stats?.death?.toString() ?: "-"
         )
 
         Text(
-          text = stats?.special.toString() ?: "-"
+          text = stats?.special?.toString() ?: "-"
         )
       }
     }

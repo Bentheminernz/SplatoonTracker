@@ -33,6 +33,7 @@ import nz.benlawrence.splatoontracker.data.SplatoonDataState
 import nz.benlawrence.splatoontracker.data.SplatoonDataViewModel
 import nz.benlawrence.splatoontracker.data.models.Splatoon3Ink.CoopGroupingRegularScheduleNode
 import nz.benlawrence.splatoontracker.ui.components.SalmonRunListItem
+import nz.benlawrence.splatoontracker.utils.debugOnly
 import java.time.Duration
 import java.time.Instant
 
@@ -139,7 +140,10 @@ fun SalmonRunSchedule(
                 .orEmpty()
                 .flatMap { it.historyDetails.nodes }
                 .filter { it.coopStage.id == node.setting.coopStage.id }
-              Log.i("SalmonRun", "Battle History: $battleHistory")
+
+              debugOnly {
+                Log.i("SalmonRun", "Battle History: $battleHistory")
+              }
 
               battleHistory.forEach {
                 Button(onClick = {

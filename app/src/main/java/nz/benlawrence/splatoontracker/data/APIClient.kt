@@ -31,9 +31,6 @@ object SplatoonAPIClient {
         }
         .connectTimeout(45, TimeUnit.SECONDS)
         .readTimeout(45, TimeUnit.SECONDS)
-        .writeTimeout(45, TimeUnit.SECONDS)
-        .connectTimeout(45, TimeUnit.SECONDS)
-        .readTimeout(45, TimeUnit.SECONDS)
         .writeTimeout(30, TimeUnit.SECONDS)
         .build()
 

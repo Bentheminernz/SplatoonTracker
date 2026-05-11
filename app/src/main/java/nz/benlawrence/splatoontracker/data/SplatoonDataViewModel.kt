@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import nz.benlawrence.splatoontracker.data.models.Splatoon3Ink.Data
+import nz.benlawrence.splatoontracker.utils.debugOnly
 
 class SplatoonDataViewModel: ViewModel() {
     var dataState: SplatoonDataState by mutableStateOf(SplatoonDataState.Loading)
@@ -21,10 +22,14 @@ class SplatoonDataViewModel: ViewModel() {
             try {
                 val response = SplatoonAPIClient.splatoonAPI.getSchedules()
                 dataState = SplatoonDataState.Success(response.data)
-                Log.d("SplatoonDataViewModel", "Data loaded successfully: $response")
+                debugOnly {
+                    Log.d("SplatoonDataViewModel", "Data loaded successfully: $response")
+                }
             } catch(e: Exception) {
                 dataState = SplatoonDataState.Error(e.message ?: "An error has occured")
-                Log.e("SplatoonDataViewModel", "Error loading data", e)  // add this
+                debugOnly {
+                    Log.e("SplatoonDataViewModel", "Error loading data", e)
+                }
                 e.printStackTrace()
             }
         }

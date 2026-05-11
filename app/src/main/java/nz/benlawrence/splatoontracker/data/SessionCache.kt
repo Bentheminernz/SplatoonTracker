@@ -5,7 +5,9 @@ import android.util.Log
 import androidx.core.content.edit
 import com.google.gson.Gson
 import nz.benlawrence.splatoontracker.data.models.coral.SessionResponse
+import nz.benlawrence.splatoontracker.utils.debugOnly
 
+// TODO: Add encryption for stored session data
 class SessionCache(context: Context) {
   private val gson = Gson()
   private val prefs = context.getSharedPreferences("session_cache", Context.MODE_PRIVATE)
@@ -16,9 +18,14 @@ class SessionCache(context: Context) {
       prefs.edit {
         putString("cached_session", json)
       }
-      Log.d("SessionCache", "Session saved to cache")
+
+      debugOnly {
+        Log.d("SessionCache", "Session saved to cache")
+      }
     } catch (e: Exception) {
-      Log.e("SessionCache", "Error saving session to cache", e)
+      debugOnly {
+        Log.e("SessionCache", "Error saving session to cache", e)
+      }
     }
   }
 
@@ -26,10 +33,14 @@ class SessionCache(context: Context) {
     return try {
       val json = prefs.getString("cached_session", null) ?: return null
       gson.fromJson(json, SessionResponse::class.java).also {
-        Log.d("SessionCache", "Session retrieved from cache")
+        debugOnly {
+          Log.d("SessionCache", "Session retrieved from cache")
+        }
       }
     } catch (e: Exception) {
-      Log.e("SessionCache", "Error reading session from cache", e)
+      debugOnly {
+        Log.e("SessionCache", "Error reading session from cache", e)
+      }
       null
     }
   }
@@ -39,9 +50,14 @@ class SessionCache(context: Context) {
       prefs.edit {
         remove("cached_session")
       }
-      Log.d("SessionCache", "Session cache cleared")
+
+      debugOnly {
+        Log.d("SessionCache", "Session cache cleared")
+      }
     } catch (e: Exception) {
-      Log.e("SessionCache", "Error clearing session cache", e)
+      debugOnly {
+        Log.e("SessionCache", "Error clearing session cache", e)
+      }
     }
   }
 

@@ -18,6 +18,7 @@ import nz.benlawrence.splatoontracker.data.models.coral.splatnet.salmonrun.CoopH
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.salmonrun.CoopHistoryDetailResponse
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.salmonrun.CoopResult
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.sideorder.SideOrderRecords
+import nz.benlawrence.splatoontracker.utils.debugOnly
 
 class CoralDataViewModel(context: Context? = null): ViewModel() {
   private val sessionCache = context?.let { SessionCache(it) }
@@ -34,9 +35,13 @@ class CoralDataViewModel(context: Context? = null): ViewModel() {
     if (cached != null) {
       dataState = dataState.copy(coralSession = DataState.Success(cached))
 //      fetchSideOrderRecords()
-      Log.d("CoralDataViewModel", "Loaded session from cache")
+      debugOnly {
+        Log.d("CoralDataViewModel", "Loaded session from cache")
+      }
     } else {
-      Log.e("CoralDataViewModel", "No valid session found in cache")
+      debugOnly {
+        Log.e("CoralDataViewModel", "No valid session found in cache")
+      }
     }
   }
 
@@ -48,7 +53,9 @@ class CoralDataViewModel(context: Context? = null): ViewModel() {
          dataState = dataState.copy(authURL = DataState.Success(response))
        } catch(e: Exception) {
          dataState = dataState.copy(authURL = DataState.Error(e.message ?: "An error has occurred"))
-         Log.e("CoralDataViewModel", "Error loading auth URL", e)
+         debugOnly {
+           Log.e("CoralDataViewModel", "Error loading auth URL", e)
+         }
          e.printStackTrace()
        }
      }
@@ -61,11 +68,15 @@ class CoralDataViewModel(context: Context? = null): ViewModel() {
         val response = SplatoonAPIClient.coralAPI.createSession(session)
         sessionCache?.saveSession(response)
         dataState = dataState.copy(coralSession = DataState.Success(response))
-        Log.d("CoralDataViewModel", "Session created and cached")
+        debugOnly {
+          Log.d("CoralDataViewModel", "Session created and cached")
+        }
         fetchSideOrderRecords()
       } catch(e: Exception) {
         dataState = dataState.copy(coralSession = DataState.Error(e.message ?: "An error has occurred"))
-        Log.e("CoralDataViewModel", "Error creating session", e)
+        debugOnly {
+          Log.e("CoralDataViewModel", "Error creating session", e)
+        }
         e.printStackTrace()
       }
     }
@@ -83,16 +94,19 @@ class CoralDataViewModel(context: Context? = null): ViewModel() {
       dataState = dataState.copy(sideOrderRecords = DataState.Loading)
       try {
         val response = SplatoonAPIClient.coralAPI.fetchSideOrderRecords(mapOf("splatnetAuthData" to sessionData.splatnet.data))
-        Log.e("CoralDataViewModel", "Fetched side order records: $response")
-        // The API nests the record under `challenges.sideOrderRecord` — use the correct path
-        Log.e(
-          "CoralDataViewModel",
-          "High Score: ${response.challenges?.sideOrderRecord?.highestScoreTryResult?.floor ?: "Undefined"}"
-        )
+        debugOnly {
+          Log.e("CoralDataViewModel", "Fetched side order records: $response")
+          Log.e(
+            "CoralDataViewModel",
+            "High Score: ${response.challenges?.sideOrderRecord?.highestScoreTryResult?.floor ?: "Undefined"}"
+          )
+        }
         dataState = dataState.copy(sideOrderRecords = DataState.Success(response))
       } catch(e: Exception) {
         dataState = dataState.copy(sideOrderRecords = DataState.Error(e.message ?: "An error has occurred"))
-        Log.e("CoralDataViewModel", "Error fetching side order records", e)
+        debugOnly {
+          Log.e("CoralDataViewModel", "Error fetching side order records", e)
+        }
         e.printStackTrace()
       }
     }
@@ -111,12 +125,16 @@ class CoralDataViewModel(context: Context? = null): ViewModel() {
       try {
 //        val response = SplatoonAPIClient.coralAPI.fetchCoopHistory(mapOf("splatnetAuthData" to sessionData.splatnet.data))
         val response = SplatoonAPIClient.coralAPI.fetchCoopHistory()
-        Log.e("CoralDataViewModel", "Fetched coop history: $response")
+        debugOnly {
+          Log.e("CoralDataViewModel", "Fetched coop history: $response")
+        }
         dataState = dataState.copy(coopResult = DataState.Success(response.coopHistory.coopResult))
       } catch(e: Exception) {
         dataState =
           dataState.copy(coopResult = DataState.Error(e.message ?: "An error has occurred"))
-        Log.e("CoralDataViewModel", "Error fetching coop history", e)
+        debugOnly {
+          Log.e("CoralDataViewModel", "Error fetching coop history", e)
+        }
         e.printStackTrace()
       }
     }
@@ -134,11 +152,15 @@ class CoralDataViewModel(context: Context? = null): ViewModel() {
             historyDetailRequest = CoopHistoryDetailRequest(id)
           )
         )
-        Log.e("CoralDataViewModel", "Fetched coop history detail: $response")
+        debugOnly {
+          Log.e("CoralDataViewModel", "Fetched coop history detail: $response")
+        }
         dataState = dataState.copy(coopHistoryDetails = dataState.coopHistoryDetails + (id to DataState.Success(response)))
       } catch(e: Exception) {
         dataState = dataState.copy(coopHistoryDetails = dataState.coopHistoryDetails + (id to DataState.Error(e.message ?: "An error has occurred")))
-        Log.e("CoralDataViewModel", "Error fetching coop history detail", e)
+        debugOnly {
+          Log.e("CoralDataViewModel", "Error fetching coop history detail", e)
+        }
         e.printStackTrace()
       }
     }
@@ -152,7 +174,9 @@ class CoralDataViewModel(context: Context? = null): ViewModel() {
       dataState = dataState.copy(bankaraBattleHistories = DataState.Loading)
       try {
         val response = SplatoonAPIClient.coralAPI.fetchBankaryHistory()
-        Log.e("CoralDataViewModel", "Fetched bankara battle histories: $response")
+        debugOnly {
+          Log.e("CoralDataViewModel", "Fetched bankara battle histories: $response")
+        }
         dataState = dataState.copy(bankaraBattleHistories = DataState.Success(response.bankaraBattleHistories))
       } catch (e: Exception) {
         dataState = dataState.copy(
@@ -160,7 +184,10 @@ class CoralDataViewModel(context: Context? = null): ViewModel() {
             e.message ?: "An error has occurred"
           )
         )
-        Log.e("CoralDataViewModel", "Error fetching bankara battle histories", e)
+
+        debugOnly {
+          Log.e("CoralDataViewModel", "Error fetching bankara battle histories", e)
+        }
         e.printStackTrace()
       }
     }
@@ -177,7 +204,9 @@ class CoralDataViewModel(context: Context? = null): ViewModel() {
             battleDetailRequest = BankaraBattleHistoriesRequest.BattleDetailRequest(id)
           )
         )
-        Log.e("CoralDataViewModel", "Fetched bankara battle history detail: $response")
+        debugOnly {
+          Log.e("CoralDataViewModel", "Fetched bankara battle history detail: $response")
+        }
         dataState = dataState.copy(
           bankaraHistoryDetails = dataState.bankaraHistoryDetails + (id to DataState.Success(
             response
@@ -189,7 +218,9 @@ class CoralDataViewModel(context: Context? = null): ViewModel() {
             e.message ?: "An error has occurred"
           ))
         )
-        Log.e("CoralDataViewModel", "Error fetching bankara battle history detail", e)
+        debugOnly {
+          Log.e("CoralDataViewModel", "Error fetching bankara battle history detail", e)
+        }
         e.printStackTrace()
       }
     }
@@ -204,7 +235,9 @@ class CoralDataViewModel(context: Context? = null): ViewModel() {
       dataState = dataState.copy(regularBattleHistories = DataState.Loading)
       try {
         val response = SplatoonAPIClient.coralAPI.fetchRegularBattleHistory()
-        Log.e("CoralDataViewModel", "Fetched regular battle histories: $response")
+        debugOnly {
+          Log.e("CoralDataViewModel", "Fetched regular battle histories: $response")
+        }
         // discard latest fest currently
         // TODO: figure out how to handle it
         dataState = dataState.copy(regularBattleHistories = DataState.Success(response.regularBattleHistory.latestBattleHistories))
@@ -214,7 +247,9 @@ class CoralDataViewModel(context: Context? = null): ViewModel() {
             e.message ?: "An error has occurred"
           )
         )
-        Log.e("CoralDataViewModel", "Error fetching regular battle histories", e)
+        debugOnly {
+          Log.e("CoralDataViewModel", "Error fetching regular battle histories", e)
+        }
         e.printStackTrace()
       }
     }
@@ -223,7 +258,9 @@ class CoralDataViewModel(context: Context? = null): ViewModel() {
   fun clearSessionCache() {
     sessionCache?.clearSession()
     dataState = dataState.copy(coralSession = DataState.Loading)
-    Log.d("CoralDataViewModel", "Session cache cleared")
+    debugOnly {
+      Log.d("CoralDataViewModel", "Session cache cleared")
+    }
   }
 }
 
