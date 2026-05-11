@@ -33,6 +33,7 @@ import nz.benlawrence.splatoontracker.data.SplatoonDataState
 import nz.benlawrence.splatoontracker.data.SplatoonDataViewModel
 import nz.benlawrence.splatoontracker.data.models.Splatoon3Ink.CoopGroupingRegularScheduleNode
 import nz.benlawrence.splatoontracker.ui.components.SalmonRunListItem
+import nz.benlawrence.splatoontracker.ui.theme.BlitzFontFamily
 import nz.benlawrence.splatoontracker.utils.debugOnly
 import java.time.Duration
 import java.time.Instant
@@ -94,6 +95,7 @@ fun SalmonRunSchedule(
 
               Text(
                 currentSchedule.setting.coopStage.name,
+                fontFamily = BlitzFontFamily,
                 fontWeight = FontWeight.Bold,
                 fontSize = MaterialTheme.typography.headlineLarge.fontSize
               )

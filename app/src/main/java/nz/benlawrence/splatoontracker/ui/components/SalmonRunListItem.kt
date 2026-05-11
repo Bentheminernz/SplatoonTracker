@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import nz.benlawrence.splatoontracker.R
 import nz.benlawrence.splatoontracker.data.models.Splatoon3Ink.CoopGroupingRegularScheduleNode
+import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -30,13 +31,13 @@ fun SalmonRunListItem(
   item: CoopGroupingRegularScheduleNode
 ) {
   val startTime by produceState(initialValue = "") {
-    val dateTime = ZonedDateTime.parse(item.startTime)
+    val dateTime = ZonedDateTime.parse(item.startTime).withZoneSameInstant(ZoneId.systemDefault())
     val formatter = DateTimeFormatter.ofPattern("E, M/d, h:mm a", Locale.ENGLISH)
     value = dateTime.format(formatter)
   }
 
   val endTime by produceState(initialValue = "") {
-    val dateTime = ZonedDateTime.parse(item.endTime)
+    val dateTime = ZonedDateTime.parse(item.endTime).withZoneSameInstant(ZoneId.systemDefault())
     val formatter = DateTimeFormatter.ofPattern("M/d, h:mm a", Locale.ENGLISH)
     value = dateTime.format(formatter)
   }

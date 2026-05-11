@@ -94,13 +94,9 @@ fun HomeScreen(
               nextRegular.endTime
             ),
             rotation = -2f,
-            onViewSchedule = { selectedMatch = MatchType.Regular }
+            onViewSchedule = { selectedMatch = MatchType.Regular },
+            onShowBattles = { selectedBattleMatch = MatchType.Regular }
           )
-          Button(onClick = {
-            selectedBattleMatch = MatchType.Regular
-          }) {
-            Text("View Battles")
-          }
 
           ScheduleCard(
             typename = "${currentBankara.bankaraMatchSettings.first { it.bankaraMode == "CHALLENGE" }.__typename}Challenge",
@@ -108,13 +104,8 @@ fun HomeScreen(
             nextNode = nextBankara.toDisplayData("CHALLENGE"),
             rotation = 2f,
             onViewSchedule = { selectedMatch = MatchType.BankaraChallenge },
+            onShowBattles = { selectedBattleMatch = MatchType.BankaraChallenge }
           )
-
-          Button(onClick = {
-            selectedBattleMatch = MatchType.BankaraChallenge
-          }) {
-            Text("View Battles")
-          }
 
           ScheduleCard(
             typename = "${currentBankara.bankaraMatchSettings.first { it.bankaraMode == "OPEN" }.__typename}Open",
@@ -122,12 +113,8 @@ fun HomeScreen(
             nextNode = nextBankara.toDisplayData("OPEN"),
             rotation = -2f,
             onViewSchedule = { selectedMatch = MatchType.BankaraOpen },
+            onShowBattles = { selectedBattleMatch = MatchType.BankaraOpen }
           )
-          Button(onClick = {
-            selectedBattleMatch = MatchType.BankaraOpen
-          }) {
-            Text("show sheet")
-          }
 
           ScheduleCard(
             typename = currentX.xMatchSetting.__typename,
@@ -144,7 +131,8 @@ fun HomeScreen(
               nextX.endTime
             ),
             rotation = 2f,
-            onViewSchedule = { selectedMatch = MatchType.XBattle }
+            onViewSchedule = { selectedMatch = MatchType.XBattle },
+            onShowBattles = { selectedBattleMatch = MatchType.XBattle }
           )
 
           selectedMatch?.let { type ->

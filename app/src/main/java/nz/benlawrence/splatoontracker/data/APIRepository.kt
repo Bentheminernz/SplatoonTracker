@@ -5,7 +5,7 @@ import nz.benlawrence.splatoontracker.data.models.coral.AuthURL
 import nz.benlawrence.splatoontracker.data.models.coral.SessionRequest
 import nz.benlawrence.splatoontracker.data.models.coral.SessionResponse
 import nz.benlawrence.splatoontracker.data.models.coral.SplatnetAuthData
-import nz.benlawrence.splatoontracker.data.models.coral.splatnet.battles.BankaraBattleHistoriesRequest
+import nz.benlawrence.splatoontracker.data.models.coral.splatnet.battles.VsBattleDetailRequest
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.battles.BankaraBattleHistoriesResponse
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.battles.RegularBattleHistoriesResponse
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.battles.VsBattleDetail
@@ -44,9 +44,12 @@ interface CoralAPI {
     suspend fun fetchBankaryHistory(): BankaraBattleHistoriesResponse
 
     @POST("splatnet3/bankara/history/details")
-    suspend fun fetchBankaryHistoryDetails(@Body request: BankaraBattleHistoriesRequest): VsBattleDetail
+    suspend fun fetchBankaryHistoryDetails(@Body request: VsBattleDetailRequest): VsBattleDetail
 
     @POST("splatnet3/regular-battle/history")
 //    suspend fun fetchRegularBattleHistoryDetails(@Body request: Map<String, SplatnetAuthData>): VsBattleDetail
     suspend fun fetchRegularBattleHistory(): RegularBattleHistoriesResponse
+
+    @POST("splatnet3/regular-battle/history/details")
+    suspend fun fetchRegularBattleHistoryDetails(@Body request: VsBattleDetailRequest): VsBattleDetail
 }

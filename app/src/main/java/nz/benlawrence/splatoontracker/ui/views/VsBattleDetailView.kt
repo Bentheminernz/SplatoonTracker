@@ -25,6 +25,7 @@ import nz.benlawrence.splatoontracker.data.models.coral.splatnet.battles.VsTeam
 import nz.benlawrence.splatoontracker.ui.components.GearItem
 import nz.benlawrence.splatoontracker.ui.components.NameplateItem
 import nz.benlawrence.splatoontracker.ui.components.VsBattleBadgePlate
+import nz.benlawrence.splatoontracker.ui.components.VsBattleHeader
 import nz.benlawrence.splatoontracker.ui.components.VsBattlePlayerCard
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,7 +46,6 @@ fun VsBattleDetailView(
 
   Column(
     modifier = Modifier
-      .padding(horizontal = 16.dp)
       .verticalScroll(rememberScrollState())
   ) {
     when (val data = viewModel.dataState.bankaraHistoryDetails[id] ?: DataState.Loading) {
@@ -57,56 +57,63 @@ fun VsBattleDetailView(
         val allTeams: List<VsTeam> =
           (listOf(detail.myTeam) + detail.otherTeams).sortedBy { it.order }
 
-        Text("Stage: ${detail.vsStage.name}")
+        VsBattleHeader(
+          vsStage = detail.vsStage,
+          judgement = detail.judgement,
+          myScore = detail.myTeam.result.score,
+          opponentScore = 100 - detail.myTeam.result.score,
+        )
 
-        allTeams.forEach { team ->
-          Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier
-              .clip(RoundedCornerShape(16.dp))
-              .background(MaterialTheme.colorScheme.surfaceVariant)
-              .padding(8.dp)
-          ) {
-            Text(if (team.judgement == "WIN") "Winner" else "Defeat")
-            team.players.forEach { player ->
-              VsBattlePlayerCard(
-                player = player,
-                onClick = {
-                  selectedPlayer.value = player
-                }
-              )
+        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+          allTeams.forEach { team ->
+            Column(
+              verticalArrangement = Arrangement.spacedBy(8.dp),
+              modifier = Modifier
+                .clip(RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .padding(8.dp)
+            ) {
+              Text(if (team.judgement == "WIN") "Winner" else "Defeat")
+              team.players.forEach { player ->
+                VsBattlePlayerCard(
+                  player = player,
+                  onClick = {
+                    selectedPlayer.value = player
+                  }
+                )
+              }
             }
           }
-        }
 
-        NameplateItem(player = detail.myTeam.players.first { it.id == detail.player.id })
+          NameplateItem(player = detail.myTeam.players.first { it.id == detail.player.id })
 
-        detail.awards.forEach { award ->
-          VsBattleBadgePlate(award = award)
-        }
+          detail.awards.forEach { award ->
+            VsBattleBadgePlate(award = award)
+          }
 
-        Row(
-          verticalAlignment = Alignment.CenterVertically,
-          horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-          GearItem(gear = detail.player.headGear)
-          GearItem(gear = detail.player.clothingGear)
-          GearItem(gear = detail.player.shoesGear)
-        }
+          Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+          ) {
+            GearItem(gear = detail.player.headGear)
+            GearItem(gear = detail.player.clothingGear)
+            GearItem(gear = detail.player.shoesGear)
+          }
 
-        selectedPlayer.value?.let { player ->
-          ModalBottomSheet(onDismissRequest = { selectedPlayer.value = null }) {
-            Column {
-              NameplateItem(player = player)
+          selectedPlayer.value?.let { player ->
+            ModalBottomSheet(onDismissRequest = { selectedPlayer.value = null }) {
+              Column {
+                NameplateItem(player = player)
 
-              Text("Gear Used")
-              Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-              ) {
-                GearItem(gear = player.headGear)
-                GearItem(gear = player.clothingGear)
-                GearItem(gear = player.shoesGear)
+                Text("Gear Used")
+                Row(
+                  verticalAlignment = Alignment.CenterVertically,
+                  horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                  GearItem(gear = player.headGear)
+                  GearItem(gear = player.clothingGear)
+                  GearItem(gear = player.shoesGear)
+                }
               }
             }
           }

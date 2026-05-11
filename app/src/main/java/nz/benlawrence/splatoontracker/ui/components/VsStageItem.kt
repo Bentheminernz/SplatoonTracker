@@ -25,6 +25,7 @@ import nz.benlawrence.splatoontracker.data.models.Splatoon3Ink.VsStage
 import nz.benlawrence.splatoontracker.ui.theme.BlitzFontFamily
 import nz.benlawrence.splatoontracker.utils.getBattleImage
 import java.time.Instant
+import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -39,8 +40,9 @@ fun VsStageItem(
 ) {
   val formattedStartEnd by produceState(initialValue = "") {
     val formatter = DateTimeFormatter.ofPattern("h:mm a", Locale.ENGLISH)
-    val start = ZonedDateTime.parse(startTime).format(formatter)
-    val end = ZonedDateTime.parse(endTime).format(formatter)
+    val userZone = ZoneId.systemDefault()
+    val start = ZonedDateTime.parse(startTime).withZoneSameInstant(userZone).format(formatter)
+    val end = ZonedDateTime.parse(endTime).withZoneSameInstant(userZone).format(formatter)
     value = "$start - $end"
   }
 

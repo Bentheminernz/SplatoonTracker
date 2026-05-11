@@ -8,7 +8,7 @@ import nz.benlawrence.splatoontracker.data.models.coral.splatnet.VsRule
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.VsStage
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.Weapon
 
-data class BankaraBattleHistoriesRequest(
+data class VsBattleDetailRequest(
     val battleDetailRequest: BattleDetailRequest
 ) {
     data class BattleDetailRequest(

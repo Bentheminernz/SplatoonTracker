@@ -37,7 +37,7 @@ object SplatoonAPIClient {
     val coralAPI: CoralAPI = Retrofit.Builder()
 //        .baseUrl("http://192.168.178.55:3000/")
         .baseUrl("http://10.0.2.2:3000/")
-        .client(coralHttpClient)  // <-- use this client instead
+        .client(coralHttpClient)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
         .create(CoralAPI::class.java)
