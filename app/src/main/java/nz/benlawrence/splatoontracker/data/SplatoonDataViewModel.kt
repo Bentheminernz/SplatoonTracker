@@ -23,7 +23,7 @@ class SplatoonDataViewModel: ViewModel() {
                 val response = SplatoonAPIClient.splatoonAPI.getSchedules()
                 dataState = SplatoonDataState.Success(response.data)
                 debugOnly {
-                    Log.d("SplatoonDataViewModel", "Data loaded successfully: $response")
+                    Log.d("SplatoonDataViewModel", "Data loaded successfully")
                 }
             } catch(e: Exception) {
                 dataState = SplatoonDataState.Error(e.message ?: "An error has occured")

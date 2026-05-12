@@ -9,12 +9,12 @@ import nz.benlawrence.splatoontracker.data.models.coral.splatnet.VsStage
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.Weapon
 
 data class VsBattleDetailRequest(
-    val battleDetailRequest: BattleDetailRequest
+    val sessionBlob: String,
+    val historyDetailRequest: HistoryDetailRequest
 ) {
-    data class BattleDetailRequest(
-        val historyId: String
-    )
+    data class HistoryDetailRequest(val historyId: String)
 }
+
 
 @Serializable
 data class BankaraBattleHistoriesResponse(
@@ -22,14 +22,10 @@ data class BankaraBattleHistoriesResponse(
 )
 
 @Serializable
-data class RegularBattleHistoriesResponse(
-    val regularBattleHistory: RegularBattleHistory
-) {
-    data class RegularBattleHistory(
-        val latestBattleHistories: VsBattleHistories,
-        val currentFest: Any?
-    )
-}
+data class RegularBattleHistoryResponse(
+    val latestBattleHistories: VsBattleHistories,
+    val currentFest: Any?
+)
 
 @Serializable
 data class VsBattleHistories(

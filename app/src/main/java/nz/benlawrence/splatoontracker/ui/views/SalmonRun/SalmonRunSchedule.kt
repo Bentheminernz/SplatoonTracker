@@ -32,6 +32,7 @@ import nz.benlawrence.splatoontracker.data.DataState
 import nz.benlawrence.splatoontracker.data.SplatoonDataState
 import nz.benlawrence.splatoontracker.data.SplatoonDataViewModel
 import nz.benlawrence.splatoontracker.data.models.Splatoon3Ink.CoopGroupingRegularScheduleNode
+import nz.benlawrence.splatoontracker.data.models.coral.splatnet.salmonrun.CoopHistoryResponse
 import nz.benlawrence.splatoontracker.ui.components.SalmonRunListItem
 import nz.benlawrence.splatoontracker.ui.theme.BlitzFontFamily
 import nz.benlawrence.splatoontracker.utils.debugOnly
@@ -45,7 +46,7 @@ fun SalmonRunSchedule(
   navController: NavController
 ) {
   LaunchedEffect(Unit) {
-    val data = (coralViewModel.dataState.coopResult as? DataState.Success)?.data
+    val data = (coralViewModel.dataState.coopResult as? DataState.Success<CoopHistoryResponse>)?.data
     if (data == null) {
       coralViewModel.getCoopResult()
     }
@@ -135,8 +136,11 @@ fun SalmonRunSchedule(
               .fillMaxSize()
           ) {
             items(state.data.coopGroupingSchedule.regularSchedules.nodes) { node ->
-              val battleHistory = (coralViewModel.dataState.coopResult as? DataState.Success)
+              val coopResult = (coralViewModel.dataState.coopResult as? DataState.Success<CoopHistoryResponse>)
                 ?.data
+                ?.coopResult
+
+              val battleHistory = coopResult
                 ?.historyGroups
                 ?.nodes
                 .orEmpty()
@@ -147,11 +151,18 @@ fun SalmonRunSchedule(
                 Log.i("SalmonRun", "Battle History: $battleHistory")
               }
 
-              battleHistory.forEach {
-                Button(onClick = {
-                  navController.navigate("coop_detail/${it.id}")
-                }) {
-                  Text("View Battle ${it.id.take(10)}")
+              if (battleHistory.isEmpty()) {
+                Text(
+                  text = "No battle history for ${node.setting.coopStage.name}",
+                  style = MaterialTheme.typography.bodyMedium
+                )
+              } else {
+                battleHistory.forEach {
+                  Button(onClick = {
+                    navController.navigate("coop_detail/${it.id}")
+                  }) {
+                    Text("View Battle ${it.id.take(10)}")
+                  }
                 }
               }
 

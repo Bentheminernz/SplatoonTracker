@@ -14,6 +14,11 @@ data class SessionRequest(
 // MARK: - Response
 @Serializable
 data class SessionResponse(
+  val sessionBlob: String
+)
+
+@Serializable
+data class OldSessionResponse(
   val coral: Coral,
   val splatnet: SplatNetAuthDataWrapper
 )

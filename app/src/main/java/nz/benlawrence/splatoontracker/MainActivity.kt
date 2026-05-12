@@ -168,8 +168,7 @@ fun SplatoonTrackerApp(
               VsBattleDetailView(
                 id = id ?: "",
                 matchType = matchType ?: MatchType.Regular,
-                viewModel = coralViewModel,
-                navController = homeNavController
+                viewModel = coralViewModel
               )
             }
           }

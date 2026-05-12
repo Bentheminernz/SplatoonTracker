@@ -3,11 +3,11 @@ package nz.benlawrence.splatoontracker.data.models.coral.splatnet.salmonrun
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.Image
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.Weapon
 
-data class CoopResultResponse(
-    val coopHistory: CoopResultWrapper
+data class CoopHistoryResponse(
+    val coopResult: CoopResult
 )
 
-data class CoopResultWrapper(
+data class CoopHistory(
     val coopResult: CoopResult
 )
 

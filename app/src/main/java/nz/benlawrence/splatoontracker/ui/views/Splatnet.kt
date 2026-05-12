@@ -73,21 +73,9 @@ fun Splatnet(
             Text("Create Session")
           }
 
-          when (val sessionState = viewModel.dataState.coralSession) {
-            is DataState.Loading ->
-              CircularProgressIndicator(
-                color = MaterialTheme.colorScheme.secondary,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant
-              )
-
-            is DataState.Error ->
-              Text(sessionState.message)
-
-            is DataState.Success ->
-              Text("Session created: ${sessionState.data.coral.user.nickname}")
+          if (viewModel.dataState.sessionBlob != null) {
+            Text("Session Blob: ${viewModel.dataState.sessionBlob}")
           }
-
-
         }
     }
 

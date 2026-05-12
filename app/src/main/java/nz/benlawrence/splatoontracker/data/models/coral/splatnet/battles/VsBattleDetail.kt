@@ -13,10 +13,6 @@ import nz.benlawrence.splatoontracker.data.models.coral.splatnet.salmonrun.Previ
 
 @Serializable
 data class VsBattleDetail(
-    val battleDetail: BattleDetail
-)
-
-data class BattleDetail(
     val vsHistoryDetail: VsHistoryDetail
 )
 

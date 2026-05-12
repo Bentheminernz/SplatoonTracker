@@ -17,7 +17,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import nz.benlawrence.splatoontracker.data.CoralDataViewModel
 import nz.benlawrence.splatoontracker.data.DataState
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.battles.Player
@@ -33,12 +32,18 @@ import nz.benlawrence.splatoontracker.ui.components.VsBattlePlayerCard
 fun VsBattleDetailView(
   id: String,
   matchType: MatchType,
-  viewModel: CoralDataViewModel,
-  navController: NavController
+  viewModel: CoralDataViewModel
 ) {
+  val battleDetailState = when (matchType) {
+    MatchType.Regular -> viewModel.dataState.regularBattleHistoryDetails[id]
+    MatchType.BankaraChallenge, MatchType.BankaraOpen, MatchType.XBattle -> viewModel.dataState.bankaraHistoryDetails[id]
+  }
+
   LaunchedEffect(id) {
-    if (viewModel.dataState.bankaraHistoryDetails[id] !is DataState.Success) {
-      viewModel.getBankaraBattleHistoryDetail(id)
+    when (matchType) {
+      MatchType.Regular -> if (battleDetailState !is DataState.Success) viewModel.getRegularBattleHistoryDetail(id)
+      MatchType.BankaraChallenge, MatchType.BankaraOpen, MatchType.XBattle ->
+        if (battleDetailState !is DataState.Success) viewModel.getBankaraBattleHistoryDetail(id)
     }
   }
 
@@ -48,12 +53,11 @@ fun VsBattleDetailView(
     modifier = Modifier
       .verticalScroll(rememberScrollState())
   ) {
-    when (val data = viewModel.dataState.bankaraHistoryDetails[id] ?: DataState.Loading) {
+    when (val data = battleDetailState ?: DataState.Loading) {
       is DataState.Loading -> Text("Loading...")
       is DataState.Error -> Text("Error: ${data.message}")
       is DataState.Success -> {
-        val detail = data.data.battleDetail.vsHistoryDetail
-        val didWin = detail.myTeam.judgement == "WIN"
+        val detail = data.data.vsHistoryDetail
         val allTeams: List<VsTeam> =
           (listOf(detail.myTeam) + detail.otherTeams).sortedBy { it.order }
 

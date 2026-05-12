@@ -8,14 +8,14 @@ import nz.benlawrence.splatoontracker.ui.components.PlayerCardData
 
 // --- Request types ---
 
-data class CoopHistoryDetailRequestBody(
-//  val splatnetAuthData: SplatnetAuthData,
+data class CoopDetailBlobRequest(
+  val sessionBlob: String,
   val historyDetailRequest: CoopHistoryDetailRequest
-)
-
-data class CoopHistoryDetailRequest(
-  val historyId: String
-)
+) {
+  data class CoopHistoryDetailRequest(
+    val historyId: String
+  )
+}
 
 // --- Response types ---
 @Serializable

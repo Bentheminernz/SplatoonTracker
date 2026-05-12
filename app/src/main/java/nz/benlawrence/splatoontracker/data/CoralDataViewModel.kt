@@ -10,24 +10,29 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import nz.benlawrence.splatoontracker.data.models.coral.AuthURL
 import nz.benlawrence.splatoontracker.data.models.coral.SessionRequest
-import nz.benlawrence.splatoontracker.data.models.coral.SessionResponse
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.battles.VsBattleDetail
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.battles.VsBattleDetailRequest
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.battles.VsBattleHistories
-import nz.benlawrence.splatoontracker.data.models.coral.splatnet.salmonrun.CoopHistoryDetailRequest
-import nz.benlawrence.splatoontracker.data.models.coral.splatnet.salmonrun.CoopHistoryDetailRequestBody
+import nz.benlawrence.splatoontracker.data.models.coral.splatnet.salmonrun.CoopDetailBlobRequest
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.salmonrun.CoopHistoryDetailResponse
-import nz.benlawrence.splatoontracker.data.models.coral.splatnet.salmonrun.CoopResult
+import nz.benlawrence.splatoontracker.data.models.coral.splatnet.salmonrun.CoopHistoryResponse
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.sideorder.SideOrderRecords
 import nz.benlawrence.splatoontracker.utils.debugOnly
 
-class CoralDataViewModel(context: Context? = null) : ViewModel() {
-  private val sessionCache = context?.let { SessionCache(it) }
+@Suppress("unused")
+class CoralDataViewModel(appContext: Context?) : ViewModel() {
+
+  private val sessionCache = appContext?.let {
+    SessionCache(it)
+  }
 
   var dataState: CoralDataState by mutableStateOf(CoralDataState())
     private set
 
   init {
+    if (appContext == null) {
+      debugOnly { Log.e("CoralDataViewModel", "CoralDataViewModel created with null context") }
+    }
     loadAuthURL()
     loadCachedSession()
   }
@@ -35,12 +40,20 @@ class CoralDataViewModel(context: Context? = null) : ViewModel() {
   // region Auth / Session
 
   private fun loadCachedSession() {
-    val cached = sessionCache?.getSession()
-    if (cached != null) {
-      dataState = dataState.copy(coralSession = DataState.Success(cached))
-      debugOnly { Log.d("CoralDataViewModel", "Loaded session from cache") }
-    } else {
-      debugOnly { Log.e("CoralDataViewModel", "No valid session found in cache") }
+    if (sessionCache == null) {
+      debugOnly { Log.e("CoralDataViewModel", "SessionCache is null - cannot load session") }
+      return
+    }
+
+    viewModelScope.launch {
+      try {
+        val blob = sessionCache.getSessionBlob()
+        if (blob != null) {
+          dataState = dataState.copy(sessionBlob = blob)
+        }
+      } catch (e: Exception) {
+        debugOnly { Log.e("CoralDataViewModel", "Exception loading cached session", e) }
+      }
     }
   }
 
@@ -53,63 +66,80 @@ class CoralDataViewModel(context: Context? = null) : ViewModel() {
 
   fun createSession(session: SessionRequest) {
     viewModelScope.launch {
-      dataState = dataState.copy(coralSession = DataState.Loading)
+      dataState = dataState.copy(sessionBlob = null)
       try {
         val response = SplatoonAPIClient.coralAPI.createSession(session)
-        sessionCache?.saveSession(response)
-        dataState = dataState.copy(coralSession = DataState.Success(response))
-        debugOnly { Log.d("CoralDataViewModel", "Session created and cached") }
-        fetchSideOrderRecords()
+        sessionCache?.saveSessionBlob(response.sessionBlob)
+        dataState = dataState.copy(sessionBlob = response.sessionBlob)
       } catch (e: Exception) {
-        dataState = dataState.copy(coralSession = DataState.Error(e.message ?: "An error has occurred"))
         debugOnly { Log.e("CoralDataViewModel", "Error creating session", e) }
       }
     }
   }
 
   fun clearSessionCache() {
-    sessionCache?.clearSession()
-    dataState = dataState.copy(coralSession = DataState.Loading)
-    debugOnly { Log.d("CoralDataViewModel", "Session cache cleared") }
+    viewModelScope.launch {
+      sessionCache?.clearSession()
+      dataState = dataState.copy(sessionBlob = null)
+    }
+  }
+
+  private suspend fun recoverSessionBlobFromCache(): String? {
+    return try {
+      val recoveredBlob = sessionCache?.getSessionBlob()
+      if (recoveredBlob != null) {
+        dataState = dataState.copy(sessionBlob = recoveredBlob)
+        recoveredBlob
+      } else {
+        null
+      }
+    } catch (e: Exception) {
+      debugOnly { Log.e("CoralDataViewModel", "Exception recovering blob from cache", e) }
+      null
+    }
+  }
+
+  private fun handleNewBlob(newBlob: String?) {
+    if (newBlob != null) {
+      viewModelScope.launch {
+        sessionCache?.saveSessionBlob(newBlob)
+      }
+      dataState = dataState.copy(sessionBlob = newBlob)
+    }
   }
 
   // endregion
 
   // region Side Order
 
-  fun fetchSideOrderRecords() {
-    val sessionData = (dataState.coralSession as? DataState.Success)?.data
-    if (sessionData == null) {
-      dataState = dataState.copy(sideOrderRecords = DataState.Error("Session Data is null"))
-      return
-    }
-
-    fetchData(
-      setLoading = { it.copy(sideOrderRecords = DataState.Loading) },
-      setResult = { state, result -> state.copy(sideOrderRecords = result) },
-      fetch = { SplatoonAPIClient.coralAPI.fetchSideOrderRecords(mapOf("splatnetAuthData" to sessionData.splatnet.data)) },
-      tag = "side order records"
-    )
-  }
+  fun fetchSideOrderRecords() = fetchBlobData(
+    setLoading = { it.copy(sideOrderRecords = DataState.Loading) },
+    setResult = { state, result -> state.copy(sideOrderRecords = result) },
+    fetch = { blob -> SplatoonAPIClient.coralAPI.fetchSideOrderRecords(SessionBlobRequest(sessionBlob = blob)) },
+    tag = "side order records"
+  )
 
   // endregion
 
   // region Salmon Run
 
-  fun getCoopResult() = fetchData(
+  fun getCoopResult() = fetchBlobData(
     setLoading = { it.copy(coopResult = DataState.Loading) },
     setResult = { state, result -> state.copy(coopResult = result) },
-    fetch = { SplatoonAPIClient.coralAPI.fetchCoopHistory().coopHistory.coopResult },
+    fetch = { blob -> SplatoonAPIClient.coralAPI.fetchCoopHistory(SessionBlobRequest(sessionBlob = blob)) },
     tag = "coop result"
   )
 
-  fun getCoopHistoryDetail(id: String) = fetchDetail(
+  fun getCoopHistoryDetail(id: String) = fetchBlobDetail(
     id = id,
     getMap = { it.coopHistoryDetails },
     setMap = { state, map -> state.copy(coopHistoryDetails = map) },
-    fetch = {
+    fetch = { blob ->
       SplatoonAPIClient.coralAPI.fetchCoopHistoryDetails(
-        CoopHistoryDetailRequestBody(historyDetailRequest = CoopHistoryDetailRequest(id))
+        CoopDetailBlobRequest(
+          sessionBlob = blob,
+          historyDetailRequest = CoopDetailBlobRequest.CoopHistoryDetailRequest(historyId = id)
+        )
       )
     },
     tag = "coop history detail"
@@ -122,17 +152,17 @@ class CoralDataViewModel(context: Context? = null) : ViewModel() {
   fun getBankaraBattleHistories() = fetchData(
     setLoading = { it.copy(bankaraBattleHistories = DataState.Loading) },
     setResult = { state, result -> state.copy(bankaraBattleHistories = result) },
-    fetch = { SplatoonAPIClient.coralAPI.fetchBankaryHistory().bankaraBattleHistories },
+    fetch = { SplatoonAPIClient.coralAPI.fetchBankaryHistory().data.bankaraBattleHistories },
     tag = "bankara battle histories"
   )
 
-  fun getBankaraBattleHistoryDetail(id: String) = fetchDetail(
+  fun getBankaraBattleHistoryDetail(id: String) = fetchBlobDetail(
     id = id,
     getMap = { it.bankaraHistoryDetails },
     setMap = { state, map -> state.copy(bankaraHistoryDetails = map) },
-    fetch = {
+    fetch = { blob ->
       SplatoonAPIClient.coralAPI.fetchBankaryHistoryDetails(
-        VsBattleDetailRequest(battleDetailRequest = VsBattleDetailRequest.BattleDetailRequest(id))
+        VsBattleDetailRequest(sessionBlob = blob, historyDetailRequest = VsBattleDetailRequest.HistoryDetailRequest(historyId = id))
       )
     },
     tag = "bankara battle detail"
@@ -145,17 +175,23 @@ class CoralDataViewModel(context: Context? = null) : ViewModel() {
   fun getRegularBattleHistories() = fetchData(
     setLoading = { it.copy(regularBattleHistories = DataState.Loading) },
     setResult = { state, result -> state.copy(regularBattleHistories = result) },
-    fetch = { SplatoonAPIClient.coralAPI.fetchRegularBattleHistory().regularBattleHistory.latestBattleHistories },
+    fetch = {
+      val blob = resolveSessionBlob() ?: throw IllegalStateException("Session blob is null")
+      SplatoonAPIClient.coralAPI.fetchRegularBattleHistory(SessionBlobRequest(sessionBlob = blob)).data.latestBattleHistories
+    },
     tag = "regular battle histories"
   )
 
-  fun getRegularBattleHistoryDetail(id: String) = fetchDetail(
+  fun getRegularBattleHistoryDetail(id: String) = fetchBlobDetail(
     id = id,
     getMap = { it.regularBattleHistoryDetails },
     setMap = { state, map -> state.copy(regularBattleHistoryDetails = map) },
-    fetch = {
+    fetch = { blob ->
       SplatoonAPIClient.coralAPI.fetchRegularBattleHistoryDetails(
-        VsBattleDetailRequest(battleDetailRequest = VsBattleDetailRequest.BattleDetailRequest(id))
+        VsBattleDetailRequest(
+          sessionBlob = blob,
+          historyDetailRequest = VsBattleDetailRequest.HistoryDetailRequest(historyId = id)
+        )
       )
     },
     tag = "regular battle detail"
@@ -163,7 +199,53 @@ class CoralDataViewModel(context: Context? = null) : ViewModel() {
 
   // endregion
 
-  // region helpers
+  // region Helpers
+
+  private suspend fun resolveSessionBlob(): String? {
+    dataState.sessionBlob?.let { return it }
+    return recoverSessionBlobFromCache()
+  }
+
+  private fun <T> fetchBlobData(
+    setLoading: (CoralDataState) -> CoralDataState,
+    setResult: (CoralDataState, DataState<T>) -> CoralDataState,
+    fetch: suspend (sessionBlob: String) -> BlobResponse<T>,
+    tag: String
+  ) {
+    viewModelScope.launch {
+      val blob = resolveSessionBlob() ?: return@launch
+      dataState = setLoading(dataState)
+      try {
+        val response = fetch(blob)
+        handleNewBlob(response.sessionBlob)
+        dataState = setResult(dataState, DataState.Success(response.data))
+      } catch (e: Exception) {
+        dataState = setResult(dataState, DataState.Error(e.message ?: "An error has occurred"))
+        debugOnly { Log.e("CoralDataViewModel", "Error fetching $tag", e) }
+      }
+    }
+  }
+
+  private fun <T> fetchBlobDetail(
+    id: String,
+    getMap: (CoralDataState) -> Map<String, DataState<T>>,
+    setMap: (CoralDataState, Map<String, DataState<T>>) -> CoralDataState,
+    fetch: suspend (sessionBlob: String) -> BlobResponse<T>,
+    tag: String
+  ) {
+    viewModelScope.launch {
+      val blob = resolveSessionBlob() ?: return@launch
+      dataState = setMap(dataState, getMap(dataState) + (id to DataState.Loading))
+      try {
+        val response = fetch(blob)
+        handleNewBlob(response.sessionBlob)
+        dataState = setMap(dataState, getMap(dataState) + (id to DataState.Success(response.data)))
+      } catch (e: Exception) {
+        dataState = setMap(dataState, getMap(dataState) + (id to DataState.Error(e.message ?: "An error has occurred")))
+        debugOnly { Log.e("CoralDataViewModel", "Error fetching $tag $id", e) }
+      }
+    }
+  }
 
   private fun <T> fetchData(
     setLoading: (CoralDataState) -> CoralDataState,
@@ -182,26 +264,13 @@ class CoralDataViewModel(context: Context? = null) : ViewModel() {
     }
   }
 
-  private fun <T> fetchDetail(
-    id: String,
-    getMap: (CoralDataState) -> Map<String, DataState<T>>,
-    setMap: (CoralDataState, Map<String, DataState<T>>) -> CoralDataState,
-    fetch: suspend () -> T,
-    tag: String
-  ) {
-    viewModelScope.launch {
-      dataState = setMap(dataState, getMap(dataState) + (id to DataState.Loading))
-      try {
-        dataState = setMap(dataState, getMap(dataState) + (id to DataState.Success(fetch())))
-      } catch (e: Exception) {
-        dataState = setMap(dataState, getMap(dataState) + (id to DataState.Error(e.message ?: "An error has occurred")))
-        debugOnly { Log.e("CoralDataViewModel", "Error fetching $tag $id", e) }
-      }
-    }
-  }
-
   // endregion
 }
+
+data class BlobResponse<T>(
+  val data: T,
+  val sessionBlob: String?
+)
 
 sealed class DataState<out T> {
   object Loading : DataState<Nothing>()
@@ -211,9 +280,9 @@ sealed class DataState<out T> {
 
 data class CoralDataState(
   val authURL: DataState<AuthURL> = DataState.Loading,
-  val coralSession: DataState<SessionResponse> = DataState.Loading,
+  val sessionBlob: String? = null,
   val sideOrderRecords: DataState<SideOrderRecords> = DataState.Loading,
-  val coopResult: DataState<CoopResult> = DataState.Loading,
+  val coopResult: DataState<CoopHistoryResponse> = DataState.Loading,
   val coopHistoryDetails: Map<String, DataState<CoopHistoryDetailResponse>> = emptyMap(),
   val bankaraBattleHistories: DataState<VsBattleHistories> = DataState.Loading,
   val bankaraHistoryDetails: Map<String, DataState<VsBattleDetail>> = emptyMap(),

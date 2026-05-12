@@ -1,69 +1,85 @@
 package nz.benlawrence.splatoontracker.data
 
 import android.content.Context
+import android.util.Base64
 import android.util.Log
-import androidx.core.content.edit
-import com.google.gson.Gson
-import nz.benlawrence.splatoontracker.data.models.coral.SessionResponse
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
+import com.google.crypto.tink.Aead
+import com.google.crypto.tink.KeyTemplates
+import com.google.crypto.tink.aead.AeadConfig
+import com.google.crypto.tink.integration.android.AndroidKeysetManager
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 import nz.benlawrence.splatoontracker.utils.debugOnly
 
 // TODO: Add encryption for stored session data
-class SessionCache(context: Context) {
-  private val gson = Gson()
-  private val prefs = context.getSharedPreferences("session_cache", Context.MODE_PRIVATE)
+val Context.userPreferencesStore: DataStore<Preferences> by preferencesDataStore(name = "session_store")
 
-  fun saveSession(session: SessionResponse) {
+class SessionCache(private val context: Context) {
+  private val SESSION_BLOB_KEY = stringPreferencesKey("session_blob")
+  private val KEYSET_NAME = "session_cache_keyset"
+  private val PREF_FILE_NAME = "session_cache_tink"
+  private val MASTER_KEY_URI = "android-keystore://session_cache_master_key"
+
+  init {
+    AeadConfig.register()
+  }
+
+  private val aead: Aead by lazy {
+    AndroidKeysetManager.Builder()
+      .withSharedPref(context, KEYSET_NAME, PREF_FILE_NAME)
+      .withKeyTemplate(KeyTemplates.get("AES256_GCM"))
+      .withMasterKeyUri(MASTER_KEY_URI)
+      .build()
+      .keysetHandle
+      .getPrimitive(Aead::class.java)
+  }
+
+  private fun encrypt(value: String): String {
+    val encrypted = aead.encrypt(value.toByteArray(), null)
+    return Base64.encodeToString(encrypted, Base64.DEFAULT)
+  }
+
+  private fun decrypt(value: String): String {
+    val decoded = Base64.decode(value, Base64.DEFAULT)
+    return String(aead.decrypt(decoded, null))
+  }
+
+  suspend fun saveSessionBlob(blob: String) {
     try {
-      val json = gson.toJson(session)
-      prefs.edit {
-        putString("cached_session", json)
-      }
-
-      debugOnly {
-        Log.d("SessionCache", "Session saved to cache")
-      }
+      val encrypted = encrypt(blob)
+      context.userPreferencesStore.edit { it[SESSION_BLOB_KEY] = encrypted }
+      debugOnly { Log.d("SessionCache", "Session blob saved") }
     } catch (e: Exception) {
-      debugOnly {
-        Log.e("SessionCache", "Error saving session to cache", e)
-      }
+      debugOnly { Log.e("SessionCache", "Error saving session blob", e) }
     }
   }
 
-  fun getSession(): SessionResponse? {
+  suspend fun getSessionBlob(): String? {
     return try {
-      val json = prefs.getString("cached_session", null) ?: return null
-      gson.fromJson(json, SessionResponse::class.java).also {
-        debugOnly {
-          Log.d("SessionCache", "Session retrieved from cache")
-        }
-      }
+      context.userPreferencesStore.data
+        .map { it[SESSION_BLOB_KEY] }
+        .firstOrNull()
+        ?.let { decrypt(it) }
+        .also { debugOnly { Log.d("SessionCache", "Session blob retrieved") } }
     } catch (e: Exception) {
-      debugOnly {
-        Log.e("SessionCache", "Error reading session from cache", e)
-      }
+      debugOnly { Log.e("SessionCache", "Error reading session blob", e) }
       null
     }
   }
 
-  fun clearSession() {
+  suspend fun clearSession() {
     try {
-      prefs.edit {
-        remove("cached_session")
-      }
-
-      debugOnly {
-        Log.d("SessionCache", "Session cache cleared")
-      }
+      context.userPreferencesStore.edit { it.remove(SESSION_BLOB_KEY) }
+      debugOnly { Log.d("SessionCache", "Session cache cleared") }
     } catch (e: Exception) {
-      debugOnly {
-        Log.e("SessionCache", "Error clearing session cache", e)
-      }
+      debugOnly { Log.e("SessionCache", "Error clearing session cache", e) }
     }
   }
 
-  fun hasValidSession(): Boolean {
-    return getSession() != null
-  }
+  suspend fun hasValidSession(): Boolean = getSessionBlob() != null
 }
-
-
