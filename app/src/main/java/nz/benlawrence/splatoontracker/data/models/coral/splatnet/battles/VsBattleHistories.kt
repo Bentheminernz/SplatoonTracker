@@ -1,6 +1,7 @@
 package nz.benlawrence.splatoontracker.data.models.coral.splatnet.battles
 
 import kotlinx.serialization.Serializable
+import nz.benlawrence.splatoontracker.data.models.coral.splatnet.CurrentFest
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.MaskingImage
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.Summary
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.VsMode
@@ -24,7 +25,7 @@ data class BankaraBattleHistoriesResponse(
 @Serializable
 data class RegularBattleHistoryResponse(
     val latestBattleHistories: VsBattleHistories,
-    val currentFest: Any?
+    val currentFest: CurrentFest?
 )
 
 @Serializable

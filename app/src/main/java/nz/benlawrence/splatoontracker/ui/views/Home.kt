@@ -21,7 +21,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import nz.benlawrence.splatoontracker.data.CoralDataViewModel
+import nz.benlawrence.splatoontracker.data.DataState
 import nz.benlawrence.splatoontracker.data.models.Splatoon3Ink.toDisplayData
+import nz.benlawrence.splatoontracker.data.models.Splatoon3Ink.toScheduleDisplayData
 import nz.benlawrence.splatoontracker.ui.components.ScheduleCard
 import nz.benlawrence.splatoontracker.ui.components.ScheduleDisplayData
 import nz.benlawrence.splatoontracker.ui.theme.BlitzFontFamily
@@ -81,21 +83,11 @@ fun HomeScreen(
 
           ScheduleCard(
             typename = currentRegular.regularMatchSetting.__typename,
-            currentNode = ScheduleDisplayData(
-              currentRegular.regularMatchSetting.vsStages,
-              currentRegular.regularMatchSetting.vsRule,
-              currentRegular.startTime,
-              currentRegular.endTime
-            ),
-            nextNode = ScheduleDisplayData(
-              nextRegular.regularMatchSetting.vsStages,
-              nextRegular.regularMatchSetting.vsRule,
-              nextRegular.startTime,
-              nextRegular.endTime
-            ),
+            currentNode = currentRegular.toScheduleDisplayData(),
+            nextNode = nextRegular.toScheduleDisplayData(),
             rotation = -2f,
             onViewSchedule = { selectedMatch = MatchType.Regular },
-            onShowBattles = { selectedBattleMatch = MatchType.Regular }
+            onShowBattles = { if (coralViewModel.isAuthenticated) { selectedBattleMatch = MatchType.Regular } else null }
           )
 
           ScheduleCard(
@@ -104,7 +96,7 @@ fun HomeScreen(
             nextNode = nextBankara.toDisplayData("CHALLENGE"),
             rotation = 2f,
             onViewSchedule = { selectedMatch = MatchType.BankaraChallenge },
-            onShowBattles = { selectedBattleMatch = MatchType.BankaraChallenge }
+            onShowBattles = { if (coralViewModel.isAuthenticated) { selectedBattleMatch = MatchType.BankaraChallenge } else null }
           )
 
           ScheduleCard(
@@ -113,26 +105,16 @@ fun HomeScreen(
             nextNode = nextBankara.toDisplayData("OPEN"),
             rotation = -2f,
             onViewSchedule = { selectedMatch = MatchType.BankaraOpen },
-            onShowBattles = { selectedBattleMatch = MatchType.BankaraOpen }
+            onShowBattles = { if (coralViewModel.isAuthenticated) { selectedBattleMatch = MatchType.BankaraOpen } else null }
           )
 
           ScheduleCard(
             typename = currentX.xMatchSetting.__typename,
-            currentNode = ScheduleDisplayData(
-              currentX.xMatchSetting.vsStages,
-              currentX.xMatchSetting.vsRule,
-              currentX.startTime,
-              currentX.endTime
-            ),
-            nextNode = ScheduleDisplayData(
-              nextX.xMatchSetting.vsStages,
-              nextX.xMatchSetting.vsRule,
-              nextX.startTime,
-              nextX.endTime
-            ),
+            currentNode = currentX.toScheduleDisplayData(),
+            nextNode = nextX.toScheduleDisplayData(),
             rotation = 2f,
             onViewSchedule = { selectedMatch = MatchType.XBattle },
-            onShowBattles = { selectedBattleMatch = MatchType.XBattle }
+            onShowBattles = { if (coralViewModel.isAuthenticated) { selectedBattleMatch = MatchType.XBattle } else null }
           )
 
           selectedMatch?.let { type ->
@@ -152,8 +134,12 @@ fun HomeScreen(
           selectedBattleMatch?.let { type ->
             ModalBottomSheet(onDismissRequest = { selectedBattleMatch = null }) {
               LaunchedEffect(Unit) {
-                coralViewModel.getBankaraBattleHistories()
-                coralViewModel.getRegularBattleHistories()
+                if (coralViewModel.dataState.bankaraBattleHistories as? DataState.Success == null) {
+                  coralViewModel.getBankaraBattleHistories()
+                }
+                if (coralViewModel.dataState.regularBattleHistories as? DataState.Success == null) {
+                  coralViewModel.getRegularBattleHistories()
+                }
               }
 
               UserBattlesSheet(

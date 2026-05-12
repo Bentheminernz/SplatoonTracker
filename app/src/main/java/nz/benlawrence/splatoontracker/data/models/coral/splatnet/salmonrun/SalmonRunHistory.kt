@@ -40,7 +40,6 @@ data class PointCard(
     val defeatBossCount: Int,
     val deliverCount: Int,
     val goldenDeliverCount: Int,
-    val limitedPoint: Any,
     val playCount: Int,
     val regularPoint: Int,
     val rescueCount: Int,
@@ -72,8 +71,12 @@ data class HighestResult(
     val grade: Grade,
     val gradePoint: Int,
     val jobScore: Int,
-    val trophy: Any
-)
+    val trophy: Trophy
+) {
+    enum class Trophy {
+        BRONZE, SILVER, GOLD
+    }
+}
 
 data class HistoryDetails(
     val nodes: List<HistoryDetailNode>

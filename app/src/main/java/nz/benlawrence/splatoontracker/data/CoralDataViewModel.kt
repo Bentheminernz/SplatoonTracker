@@ -26,6 +26,9 @@ class CoralDataViewModel(appContext: Context?) : ViewModel() {
     SessionCache(it)
   }
 
+  val isAuthenticated: Boolean
+    get() = sessionCache != null
+
   var dataState: CoralDataState by mutableStateOf(CoralDataState())
     private set
 
@@ -33,8 +36,11 @@ class CoralDataViewModel(appContext: Context?) : ViewModel() {
     if (appContext == null) {
       debugOnly { Log.e("CoralDataViewModel", "CoralDataViewModel created with null context") }
     }
-    loadAuthURL()
     loadCachedSession()
+
+    if (!isAuthenticated) {
+      loadAuthURL()
+    }
   }
 
   // region Auth / Session
@@ -152,20 +158,11 @@ class CoralDataViewModel(appContext: Context?) : ViewModel() {
   fun getBankaraBattleHistories() = fetchData(
     setLoading = { it.copy(bankaraBattleHistories = DataState.Loading) },
     setResult = { state, result -> state.copy(bankaraBattleHistories = result) },
-    fetch = { SplatoonAPIClient.coralAPI.fetchBankaryHistory().data.bankaraBattleHistories },
-    tag = "bankara battle histories"
-  )
-
-  fun getBankaraBattleHistoryDetail(id: String) = fetchBlobDetail(
-    id = id,
-    getMap = { it.bankaraHistoryDetails },
-    setMap = { state, map -> state.copy(bankaraHistoryDetails = map) },
-    fetch = { blob ->
-      SplatoonAPIClient.coralAPI.fetchBankaryHistoryDetails(
-        VsBattleDetailRequest(sessionBlob = blob, historyDetailRequest = VsBattleDetailRequest.HistoryDetailRequest(historyId = id))
-      )
+    fetch = {
+      val blob = dataState.sessionBlob ?: throw IllegalStateException("No session blob available")
+      SplatoonAPIClient.coralAPI.fetchBankaraHistory(SessionBlobRequest(sessionBlob = blob)).data.bankaraBattleHistories
     },
-    tag = "bankara battle detail"
+    tag = "bankara battle histories"
   )
 
   // endregion
@@ -182,12 +179,15 @@ class CoralDataViewModel(appContext: Context?) : ViewModel() {
     tag = "regular battle histories"
   )
 
-  fun getRegularBattleHistoryDetail(id: String) = fetchBlobDetail(
+  // endregion
+
+  // region Vs Battle Details
+  fun getVsBattleHistoryDetail(id: String) = fetchBlobDetail(
     id = id,
-    getMap = { it.regularBattleHistoryDetails },
-    setMap = { state, map -> state.copy(regularBattleHistoryDetails = map) },
+    getMap = { it.vsBattleHistoryDetails },
+    setMap = { state, map -> state.copy(vsBattleHistoryDetails = map) },
     fetch = { blob ->
-      SplatoonAPIClient.coralAPI.fetchRegularBattleHistoryDetails(
+      SplatoonAPIClient.coralAPI.fetchVsBattleBattleHistoryDetails(
         VsBattleDetailRequest(
           sessionBlob = blob,
           historyDetailRequest = VsBattleDetailRequest.HistoryDetailRequest(historyId = id)
@@ -196,8 +196,6 @@ class CoralDataViewModel(appContext: Context?) : ViewModel() {
     },
     tag = "regular battle detail"
   )
-
-  // endregion
 
   // region Helpers
 
@@ -285,7 +283,6 @@ data class CoralDataState(
   val coopResult: DataState<CoopHistoryResponse> = DataState.Loading,
   val coopHistoryDetails: Map<String, DataState<CoopHistoryDetailResponse>> = emptyMap(),
   val bankaraBattleHistories: DataState<VsBattleHistories> = DataState.Loading,
-  val bankaraHistoryDetails: Map<String, DataState<VsBattleDetail>> = emptyMap(),
   val regularBattleHistories: DataState<VsBattleHistories> = DataState.Loading,
-  val regularBattleHistoryDetails: Map<String, DataState<VsBattleDetail>> = emptyMap()
+  val vsBattleHistoryDetails: Map<String, DataState<VsBattleDetail>> = emptyMap()
 )

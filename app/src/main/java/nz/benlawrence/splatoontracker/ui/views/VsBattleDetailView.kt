@@ -31,19 +31,12 @@ import nz.benlawrence.splatoontracker.ui.components.VsBattlePlayerCard
 @Composable
 fun VsBattleDetailView(
   id: String,
-  matchType: MatchType,
   viewModel: CoralDataViewModel
 ) {
-  val battleDetailState = when (matchType) {
-    MatchType.Regular -> viewModel.dataState.regularBattleHistoryDetails[id]
-    MatchType.BankaraChallenge, MatchType.BankaraOpen, MatchType.XBattle -> viewModel.dataState.bankaraHistoryDetails[id]
-  }
-
+  val battleDetailState = viewModel.dataState.vsBattleHistoryDetails[id]
   LaunchedEffect(id) {
-    when (matchType) {
-      MatchType.Regular -> if (battleDetailState !is DataState.Success) viewModel.getRegularBattleHistoryDetail(id)
-      MatchType.BankaraChallenge, MatchType.BankaraOpen, MatchType.XBattle ->
-        if (battleDetailState !is DataState.Success) viewModel.getBankaraBattleHistoryDetail(id)
+    if (battleDetailState !is DataState.Success) {
+      viewModel.getVsBattleHistoryDetail(id)
     }
   }
 
@@ -64,8 +57,8 @@ fun VsBattleDetailView(
         VsBattleHeader(
           vsStage = detail.vsStage,
           judgement = detail.judgement,
-          myScore = detail.myTeam.result.score,
-          opponentScore = 100 - detail.myTeam.result.score,
+          myTeam = detail.myTeam,
+          otherTeam = detail.otherTeams.first()
         )
 
         Column(modifier = Modifier.padding(horizontal = 16.dp)) {

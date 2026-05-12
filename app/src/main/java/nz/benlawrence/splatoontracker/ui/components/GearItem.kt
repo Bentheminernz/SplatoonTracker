@@ -21,10 +21,9 @@ fun GearItem(
 ) {
   Column(
     verticalArrangement = Arrangement.Center,
-    modifier = Modifier.fillMaxWidth()
   ) {
     AsyncImage(
-      model = gear.image?.url ?: "",
+      model = gear.originalImage.url,
       contentDescription = "Image of ${gear.name}",
       error = painterResource(id = R.drawable.gold)
     )

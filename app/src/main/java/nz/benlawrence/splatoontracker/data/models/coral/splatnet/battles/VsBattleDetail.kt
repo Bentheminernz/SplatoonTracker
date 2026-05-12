@@ -9,6 +9,7 @@ import nz.benlawrence.splatoontracker.data.models.coral.splatnet.SubWeapon
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.VsMode
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.VsRule
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.VsStage
+import nz.benlawrence.splatoontracker.data.models.coral.splatnet.salmonrun.NextHistoryDetail
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.salmonrun.PreviousHistoryDetail
 
 @Serializable
@@ -21,13 +22,13 @@ data class VsHistoryDetail(
     val awards: List<Award>,
     val bankaraMatch: BankaraMatch,
     val duration: Int,
-    val festMatch: Any,
+    val festMatch: FestMatch?,
     val id: String,
     val judgement: String,
     val knockout: String,
-    val leagueMatch: Any,
+    val leagueMatch: LeagueMatchEvent?,
     val myTeam: MyTeam,
-    val nextHistoryDetail: Any,
+    val nextHistoryDetail: NextHistoryDetail?,
     val otherTeams: List<OtherTeam>,
     val playedTime: String,
     val player: BattleDetailPlayer,
@@ -35,8 +36,28 @@ data class VsHistoryDetail(
     val vsMode: VsMode,
     val vsRule: VsRule,
     val vsStage: VsStage,
-    val xMatch: Any
+    val xMatch: XMatch?
 )
+
+data class XMatch(
+    val lastXPower: Int?
+)
+
+data class LeagueMatchEvent(
+    val id: String,
+    val name: String
+)
+
+data class FestMatch(
+    val contribution: Int,
+    val dragonMatchType: DragonMatchType?,
+    val jewel: Int,
+    val myFestPower: Int?
+)
+
+enum class DragonMatchType {
+    NORMAL, DECUPLE, DRAGON, DOUBLE_DRAGON
+}
 
 data class Award(
     val name: String,
@@ -47,7 +68,6 @@ data class BankaraMatch(
     val bankaraPower: BankaraPower,
     val earnedUdemaePoint: Int,
     val mode: String,
-    val weaponPower: Any
 )
 
 interface VsTeam {
@@ -56,29 +76,33 @@ interface VsTeam {
     val judgement: String
 }
 
+enum class TricolorRole {
+    ATTACK_1, ATTACK_2, DEFENSE
+}
+
 data class MyTeam(
     val color: Color,
-    val festStreakWinCount: Any,
-    val festTeamName: Any,
-    val festUniformBonusRate: Any,
-    val festUniformName: Any,
+    val festStreakWinCount: Int,
+    val festTeamName: String,
+    val festUniformBonusRate: Int?,
+    val festUniformName: String?,
     override val judgement: String,
     override val order: Int,
     override val players: List<Player>,
     val result: ResultX,
-    val tricolorRole: Any
+    val tricolorRole: TricolorRole?
 ) : VsTeam
 
 data class OtherTeam(
     val color: Color,
-    val festStreakWinCount: Any,
-    val festTeamName: Any,
-    val festUniformName: Any,
+    val festStreakWinCount: Int,
+    val festTeamName: String,
+    val festUniformName: String?,
     override val judgement: String,
     override val order: Int,
     override val players: List<Player>,
     val result: ResultX,
-    val tricolorRole: Any
+    val tricolorRole: TricolorRole?
 ) : VsTeam
 
 data class BattleDetailPlayer(
@@ -108,7 +132,6 @@ data class Color(
 data class Player(
     val __isPlayer: String,
     val byname: String,
-    val callSign: Any,
     val clothingGear: Gear,
     val crown: Boolean,
     val festDragonCert: String,
@@ -126,8 +149,8 @@ data class Player(
 )
 
 data class ResultX(
-    val noroshi: Any,
-    val paintRatio: Any,
+    val noroshi: Int?,
+    val paintRatio: Number?,
     val score: Int
 )
 
@@ -135,7 +158,7 @@ data class Result(
     val assist: Int,
     val death: Int,
     val kill: Int,
-    val noroshiTry: Any,
+    val noroshiTry: Int?,
     val special: Int
 )
 

@@ -46,9 +46,12 @@ fun SalmonRunSchedule(
   navController: NavController
 ) {
   LaunchedEffect(Unit) {
-    val data = (coralViewModel.dataState.coopResult as? DataState.Success<CoopHistoryResponse>)?.data
-    if (data == null) {
-      coralViewModel.getCoopResult()
+    if (coralViewModel.isAuthenticated) {
+      val data =
+        (coralViewModel.dataState.coopResult as? DataState.Success<CoopHistoryResponse>)?.data
+      if (data == null) {
+        coralViewModel.getCoopResult()
+      }
     }
   }
 
@@ -151,18 +154,13 @@ fun SalmonRunSchedule(
                 Log.i("SalmonRun", "Battle History: $battleHistory")
               }
 
-              if (battleHistory.isEmpty()) {
-                Text(
-                  text = "No battle history for ${node.setting.coopStage.name}",
-                  style = MaterialTheme.typography.bodyMedium
-                )
-              } else {
-                battleHistory.forEach {
-                  Button(onClick = {
-                    navController.navigate("coop_detail/${it.id}")
-                  }) {
-                    Text("View Battle ${it.id.take(10)}")
-                  }
+              battleHistory.forEach {
+                // TODO: Figure out judgement logic since 3 waves != a win
+                val result = if (it.resultWave >= 3) "Cleared" else "Failed"
+                Button(onClick = {
+                  navController.navigate("coop_detail/${it.id}")
+                }) {
+                  Text("$result - ${it.coopStage.name} - ${it.resultWave} Waves")
                 }
               }
 

@@ -2,6 +2,7 @@ package nz.benlawrence.splatoontracker.data.models.coral.splatnet
 
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.battles.AdditionalGearPower
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.battles.Brand
+import nz.benlawrence.splatoontracker.data.models.coral.splatnet.battles.Color
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.battles.OriginalImage
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.battles.PrimaryGearPower
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.salmonrun.TextColor
@@ -130,3 +131,17 @@ data class Summary(
   val win: Int
 )
 
+enum class FestState {
+  SCHEDULED, FIRST_HALF, SECOND_HALF, CLOSED
+}
+
+data class CurrentFest(
+  val id: String,
+  val state: FestState,
+  val teams: List<FestTeam>
+) {
+  data class FestTeam(
+    val id: String,
+    val color: Color
+  )
+}

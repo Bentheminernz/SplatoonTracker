@@ -27,7 +27,7 @@ fun ScheduleCard(
   nextNode: ScheduleDisplayData,
   rotation: Float,
   onViewSchedule: () -> Unit,
-  onShowBattles: () -> Unit
+  onShowBattles: (() -> Unit)?
 ) {
   Column(
     modifier = Modifier
@@ -70,14 +70,16 @@ fun ScheduleCard(
         )
       }
 
-      Button(
-        onClick = onShowBattles,
-        modifier = Modifier.padding(top = 8.dp)
-      ) {
-        Text(
-          "History of Battles",
-          fontFamily = BlitzFontFamily,
-        )
+      if (onShowBattles != null) {
+        Button(
+          onClick = onShowBattles,
+          modifier = Modifier.padding(top = 8.dp)
+        ) {
+          Text(
+            "History of Battles",
+            fontFamily = BlitzFontFamily,
+          )
+        }
       }
     }
   }
