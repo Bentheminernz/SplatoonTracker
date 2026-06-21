@@ -62,15 +62,11 @@ fun VsBattleHeader(
         .padding(horizontal = 24.dp, vertical = 6.dp)
     )
 
-    // Calculate score ratio for proportional width
     val totalScore = myTeam.result.score + otherTeam.result.score
     val myTeamRatio = if (totalScore > 0) myTeam.result.score.toFloat() / totalScore else 0.5f
-
-    // Ensure both weights are greater than zero (minimum 0.1f)
     val finalMyTeamRatio = myTeamRatio.coerceAtLeast(0.1f).coerceAtMost(0.9f)
     val finalOtherTeamRatio = 1f - finalMyTeamRatio
 
-    // Convert team colors to Compose Color
     val myTeamColor = Color(
       red = (myTeam.color.r.toInt() and 0xFF) / 255f,
       green = (myTeam.color.g.toInt() and 0xFF) / 255f,

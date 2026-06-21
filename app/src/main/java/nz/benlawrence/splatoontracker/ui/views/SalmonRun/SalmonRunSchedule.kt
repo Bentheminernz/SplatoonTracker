@@ -1,6 +1,8 @@
 package nz.benlawrence.splatoontracker.ui.views.SalmonRun
 
 import android.util.Log
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,7 +22,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -32,6 +36,7 @@ import nz.benlawrence.splatoontracker.data.DataState
 import nz.benlawrence.splatoontracker.data.SplatoonDataState
 import nz.benlawrence.splatoontracker.data.SplatoonDataViewModel
 import nz.benlawrence.splatoontracker.data.models.Splatoon3Ink.CoopGroupingRegularScheduleNode
+import nz.benlawrence.splatoontracker.data.models.Splatoon3Ink.CoopRule
 import nz.benlawrence.splatoontracker.data.models.coral.splatnet.salmonrun.CoopHistoryResponse
 import nz.benlawrence.splatoontracker.ui.components.SalmonRunListItem
 import nz.benlawrence.splatoontracker.ui.theme.BlitzFontFamily
@@ -60,11 +65,13 @@ fun SalmonRunSchedule(
       is SplatoonDataState.Success ->
         Column {
           val now = Instant.now()
-          val currentSchedule: CoopGroupingRegularScheduleNode =
-            state.data.coopGroupingSchedule.regularSchedules.nodes.filter {
-              Instant.parse(it.startTime).isBefore(now) &&
-                  Instant.parse(it.endTime).isAfter(now)
-            }.first()
+          val currentSchedule = state.data.coopGroupingSchedule.bigRunSchedules.nodes.firstOrNull {
+            Instant.parse(it.startTime).isBefore(now) &&
+                Instant.parse(it.endTime).isAfter(now)
+          } ?: state.data.coopGroupingSchedule.regularSchedules.nodes.firstOrNull {
+            Instant.parse(it.startTime).isBefore(now) &&
+                Instant.parse(it.endTime).isAfter(now)
+          } ?: return
           val timeRemaining by produceState(initialValue = "") {
             while (true) {
               val end = Instant.parse(currentSchedule.endTime)
@@ -93,8 +100,8 @@ fun SalmonRunSchedule(
                 contentDescription = "Image of ${currentSchedule.setting.boss.name}",
                 contentScale = ContentScale.FillHeight,
                 modifier = Modifier
-                    .size(48.dp)
-                    .padding(end = 8.dp)
+                  .size(48.dp)
+                  .padding(end = 8.dp)
               )
 
               Text(
@@ -103,6 +110,27 @@ fun SalmonRunSchedule(
                 fontWeight = FontWeight.Bold,
                 fontSize = MaterialTheme.typography.headlineLarge.fontSize
               )
+
+              if (currentSchedule.setting.rule == CoopRule.BIG_RUN) {
+                Row(
+                  verticalAlignment = Alignment.CenterVertically,
+                  modifier = Modifier
+                    .padding(start = 8.dp)
+                    .border(
+                      width = 2.dp,
+                      color = Color(0xFFB322FF),
+                      shape = RoundedCornerShape(12.dp)
+                    )
+                    .padding(4.dp)
+                ) {
+                  Image(
+                    painter = painterResource(R.drawable.bigrun),
+                    contentDescription = "Big Run Icon"
+                  )
+
+                  Text("Big Run", fontFamily = BlitzFontFamily)
+                }
+              }
             }
 
             AsyncImage(
@@ -110,10 +138,10 @@ fun SalmonRunSchedule(
               contentDescription = "Image of ${currentSchedule.setting.coopStage.name}",
               contentScale = ContentScale.Crop,
               modifier = Modifier
-                  .fillMaxWidth()
-                  .height(150.dp)
-                  .padding(vertical = 8.dp)
-                  .clip(RoundedCornerShape(16.dp))
+                .fillMaxWidth()
+                .height(150.dp)
+                .padding(vertical = 8.dp)
+                .clip(RoundedCornerShape(16.dp))
             )
 
             Text("Ends in $timeRemaining")
@@ -139,9 +167,10 @@ fun SalmonRunSchedule(
               .fillMaxSize()
           ) {
             items(state.data.coopGroupingSchedule.regularSchedules.nodes) { node ->
-              val coopResult = (coralViewModel.dataState.coopResult as? DataState.Success<CoopHistoryResponse>)
-                ?.data
-                ?.coopResult
+              val coopResult =
+                (coralViewModel.dataState.coopResult as? DataState.Success<CoopHistoryResponse>)
+                  ?.data
+                  ?.coopResult
 
               val battleHistory = coopResult
                 ?.historyGroups

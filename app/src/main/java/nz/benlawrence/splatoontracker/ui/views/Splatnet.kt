@@ -35,6 +35,7 @@ fun Splatnet(
       .padding(horizontal = 16.dp)
   ) {
     val context = LocalContext.current
+    Text(if (viewModel.isAuthenticated) "auht" else "nah")
     when (val authState = viewModel.dataState.authURL) {
       is DataState.Loading ->
         CircularProgressIndicator(

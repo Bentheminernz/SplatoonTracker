@@ -2,6 +2,7 @@ package nz.benlawrence.splatoontracker
 
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -38,6 +39,7 @@ import nz.benlawrence.splatoontracker.ui.views.HomeScreen
 import nz.benlawrence.splatoontracker.ui.views.MatchType
 import nz.benlawrence.splatoontracker.ui.views.SalmonRun.CoopHistoryDetail
 import nz.benlawrence.splatoontracker.ui.views.SalmonRun.SalmonRunSchedule
+import nz.benlawrence.splatoontracker.ui.views.SavannaCaptureView
 import nz.benlawrence.splatoontracker.ui.views.Settings
 import nz.benlawrence.splatoontracker.ui.views.Splatnet
 import nz.benlawrence.splatoontracker.widget.SplatoonWidgetWorker
@@ -149,6 +151,9 @@ fun SplatoonTrackerApp(
             modifier = Modifier.padding(innerPadding)
           ) {
             composable("home") {
+//              SavannaCaptureView(
+//                onCaptured = { Log.i("MainActivity", "Captured: $it") },
+//              )
               HomeScreen(
                 viewModel = splatoonViewModel,
                 coralViewModel = coralViewModel,
