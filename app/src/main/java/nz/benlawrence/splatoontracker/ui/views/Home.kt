@@ -1,14 +1,9 @@
 package nz.benlawrence.splatoontracker.ui.views
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -16,32 +11,32 @@ import nz.benlawrence.splatoontracker.data.SplatoonDataState
 import nz.benlawrence.splatoontracker.data.SplatoonDataViewModel
 import androidx.compose.material3.Text
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.pulltorefresh.pullToRefresh
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import nz.benlawrence.splatoontracker.data.models.toDisplayData
+import androidx.navigation.NavController
+import nz.benlawrence.splatoontracker.data.CoralDataViewModel
+import nz.benlawrence.splatoontracker.data.DataState
+import nz.benlawrence.splatoontracker.data.models.Splatoon3Ink.toDisplayData
+import nz.benlawrence.splatoontracker.data.models.Splatoon3Ink.toScheduleDisplayData
 import nz.benlawrence.splatoontracker.ui.components.ScheduleCard
 import nz.benlawrence.splatoontracker.ui.components.ScheduleDisplayData
-import nz.benlawrence.splatoontracker.ui.components.VsStageItem
 import nz.benlawrence.splatoontracker.ui.theme.BlitzFontFamily
-import nz.benlawrence.splatoontracker.utils.getScheduleImage
+import nz.benlawrence.splatoontracker.ui.views.sheets.UpcomingBattleSheet
+import nz.benlawrence.splatoontracker.ui.views.sheets.UserBattlesSheet
 import java.time.Instant
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
   viewModel: SplatoonDataViewModel,
-  modifier: Modifier
+  coralViewModel: CoralDataViewModel,
+  navController: NavController
 ) {
   Column {
     when (val state = viewModel.dataState) {
@@ -70,10 +65,11 @@ fun HomeScreen(
         }
 
         var selectedMatch by remember { mutableStateOf<MatchType?>(null) }
+        var selectedBattleMatch by remember { mutableStateOf<MatchType?>(null) }
 
         Column(
           verticalArrangement = Arrangement.spacedBy(16.dp),
-          modifier = modifier
+          modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
@@ -87,20 +83,11 @@ fun HomeScreen(
 
           ScheduleCard(
             typename = currentRegular.regularMatchSetting.__typename,
-            currentNode = ScheduleDisplayData(
-              currentRegular.regularMatchSetting.vsStages,
-              currentRegular.regularMatchSetting.vsRule,
-              currentRegular.startTime,
-              currentRegular.endTime
-            ),
-            nextNode = ScheduleDisplayData(
-              nextRegular.regularMatchSetting.vsStages,
-              nextRegular.regularMatchSetting.vsRule,
-              nextRegular.startTime,
-              nextRegular.endTime
-            ),
+            currentNode = currentRegular.toScheduleDisplayData(),
+            nextNode = nextRegular.toScheduleDisplayData(),
             rotation = -2f,
-            onViewSchedule = { selectedMatch = MatchType.Regular }
+            onViewSchedule = { selectedMatch = MatchType.Regular },
+            onShowBattles = { if (coralViewModel.isAuthenticated) { selectedBattleMatch = MatchType.Regular } else null }
           )
 
           ScheduleCard(
@@ -109,6 +96,7 @@ fun HomeScreen(
             nextNode = nextBankara.toDisplayData("CHALLENGE"),
             rotation = 2f,
             onViewSchedule = { selectedMatch = MatchType.BankaraChallenge },
+            onShowBattles = { if (coralViewModel.isAuthenticated) { selectedBattleMatch = MatchType.BankaraChallenge } else null }
           )
 
           ScheduleCard(
@@ -117,29 +105,51 @@ fun HomeScreen(
             nextNode = nextBankara.toDisplayData("OPEN"),
             rotation = -2f,
             onViewSchedule = { selectedMatch = MatchType.BankaraOpen },
+            onShowBattles = { if (coralViewModel.isAuthenticated) { selectedBattleMatch = MatchType.BankaraOpen } else null }
           )
 
           ScheduleCard(
             typename = currentX.xMatchSetting.__typename,
-            currentNode = ScheduleDisplayData(
-              currentX.xMatchSetting.vsStages,
-              currentX.xMatchSetting.vsRule,
-              currentX.startTime,
-              currentX.endTime
-            ),
-            nextNode = ScheduleDisplayData(
-              nextX.xMatchSetting.vsStages,
-              nextX.xMatchSetting.vsRule,
-              nextX.startTime,
-              nextX.endTime
-            ),
+            currentNode = currentX.toScheduleDisplayData(),
+            nextNode = nextX.toScheduleDisplayData(),
             rotation = 2f,
-            onViewSchedule = { selectedMatch = MatchType.XBattle }
+            onViewSchedule = { selectedMatch = MatchType.XBattle },
+            onShowBattles = { if (coralViewModel.isAuthenticated) { selectedBattleMatch = MatchType.XBattle } else null }
           )
 
           selectedMatch?.let { type ->
             ModalBottomSheet(onDismissRequest = { selectedMatch = null }) {
-              UpcomingBattleSheet(data = state.data, type = type)
+              UpcomingBattleSheet(
+                data = state.data,
+                bankaraState = coralViewModel.dataState.bankaraBattleHistories,
+                type = type,
+                navController = navController,
+                closeModal = {
+                  selectedMatch = null
+                }
+              )
+            }
+          }
+
+          selectedBattleMatch?.let { type ->
+            ModalBottomSheet(onDismissRequest = { selectedBattleMatch = null }) {
+              LaunchedEffect(Unit) {
+                if (coralViewModel.dataState.bankaraBattleHistories as? DataState.Success == null) {
+                  coralViewModel.getBankaraBattleHistories()
+                }
+                if (coralViewModel.dataState.regularBattleHistories as? DataState.Success == null) {
+                  coralViewModel.getRegularBattleHistories()
+                }
+              }
+
+              UserBattlesSheet(
+                matchType = type,
+                regularState = coralViewModel.dataState.regularBattleHistories,
+                bankaraState = coralViewModel.dataState.bankaraBattleHistories,
+                currentRegular = currentRegular,
+                currentBankara = currentBankara,
+                navController = navController
+              )
             }
           }
         }

@@ -2,7 +2,6 @@ package nz.benlawrence.splatoontracker.widget
 
 import android.content.Context
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.*
@@ -12,29 +11,24 @@ import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.provideContent
 import androidx.glance.layout.*
 import androidx.glance.text.*
-import androidx.glance.unit.ColorProvider
 import coil3.Bitmap
-import coil3.compose.AsyncImage
 import coil3.imageLoader
 import coil3.request.ImageRequest
 import coil3.request.SuccessResult
 import coil3.request.allowHardware
 import nz.benlawrence.splatoontracker.MainActivity
 import nz.benlawrence.splatoontracker.data.SplatoonAPIClient
-import nz.benlawrence.splatoontracker.data.models.Data
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.fonts.Font
+import nz.benlawrence.splatoontracker.data.models.Splatoon3Ink.Data
 import android.util.Log
-import coil3.BitmapImage
 import coil3.toBitmap
 import nz.benlawrence.splatoontracker.R
-import nz.benlawrence.splatoontracker.ui.theme.BlitzFontFamily
+import nz.benlawrence.splatoontracker.utils.debugOnly
 
 
 class SplatoonWidget : GlanceAppWidget() {
   override suspend fun provideGlance(context: Context, id: GlanceId) {
     val state = try {
-      val response = SplatoonAPIClient.splattonAPI.getSchedules()
+      val response = SplatoonAPIClient.splatoonAPI.getSchedules()
       WidgetState.Success(response.data)
     } catch (e: Exception) {
       WidgetState.Error(e.message ?: "Failed to load")
@@ -46,13 +40,20 @@ class SplatoonWidget : GlanceAppWidget() {
         ?.regularMatchSetting
         ?.vsStages
         ?.map { stage ->
-          Log.d("SplatoonWidget", "Stage URL: ${stage.image.url}")
+          debugOnly {
+            Log.d("SplatoonWidget", "Stage URL: ${stage.image.url}")
+          }
           loadBitmap(context, stage.image.url)
         }
         ?: emptyList()
     } else emptyList()
 
-    Log.d("SplatoonWidget", "Stages loaded: ${stages.size}, nulls: ${stages.count { it == null }}")
+    debugOnly {
+      Log.d(
+        "SplatoonWidget",
+        "Stages loaded: ${stages.size}, nulls: ${stages.count { it == null }}"
+      )
+    }
     provideContent {
       SplatoonWidgetContent(state, stages)
     }
@@ -66,12 +67,16 @@ suspend fun loadBitmap(context: Context, url: String): Bitmap? {
     .build()
   return when (val result = context.imageLoader.execute(request)) {
     is SuccessResult -> {
-      Log.d("SplatoonWidget", "Image type: ${result.image::class.simpleName}")
+      debugOnly {
+        Log.d("SplatoonWidget", "Image type: ${result.image::class.simpleName}")
+      }
       result.image.toBitmap()
     }
 
     else -> {
-      Log.e("SplatoonWidget", "Failed to load bitmap: $result")
+      debugOnly {
+        Log.e("SplatoonWidget", "Failed to load bitmap: $result")
+      }
       null
     }
   }

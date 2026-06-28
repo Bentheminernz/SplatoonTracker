@@ -5,9 +5,18 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.produceState
 import kotlinx.coroutines.delay
 import java.time.Duration
+import java.time.Instant
+import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import kotlin.math.abs
-import kotlin.time.Instant
+
+fun formatDDMMYYYY(date: String): String {
+  val instant = Instant.parse(date)
+  val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+    .withZone(ZoneId.systemDefault())
+  return formatter.format(instant)
+}
 
 fun formatDuration(secondsTotal: Long, hideSeconds: Boolean = false): String {
   val isNegative = secondsTotal < 0

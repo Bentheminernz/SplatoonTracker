@@ -7,11 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -22,7 +18,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import nz.benlawrence.splatoontracker.R
-import nz.benlawrence.splatoontracker.data.models.EventScheduleNode
+import nz.benlawrence.splatoontracker.data.models.Splatoon3Ink.EventScheduleNode
 import nz.benlawrence.splatoontracker.ui.theme.BlitzFontFamily
 import nz.benlawrence.splatoontracker.utils.getBattleImage
 

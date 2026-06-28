@@ -1,8 +1,7 @@
 package nz.benlawrence.splatoontracker.ui.components
 
-import android.text.Layout
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,13 +15,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import nz.benlawrence.splatoontracker.data.models.VsRule
-import nz.benlawrence.splatoontracker.data.models.VsStage
+import nz.benlawrence.splatoontracker.data.models.Splatoon3Ink.VsRule
+import nz.benlawrence.splatoontracker.data.models.Splatoon3Ink.VsStage
 import nz.benlawrence.splatoontracker.ui.theme.BlitzFontFamily
-import nz.benlawrence.splatoontracker.utils.getScheduleImage
 
 @Composable
 fun ScheduleCard(
@@ -31,6 +27,7 @@ fun ScheduleCard(
   nextNode: ScheduleDisplayData,
   rotation: Float,
   onViewSchedule: () -> Unit,
+  onShowBattles: (() -> Unit)?
 ) {
   Column(
     modifier = Modifier
@@ -59,14 +56,31 @@ fun ScheduleCard(
       isNext = true
     )
 
-    Button(
-      onClick = onViewSchedule,
-      modifier = Modifier.padding(top = 8.dp)
+    Row(
+      verticalAlignment = Alignment.CenterVertically,
+      horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-      Text(
-        "All Upcoming Stages",
-        fontFamily = BlitzFontFamily,
-      )
+      Button(
+        onClick = onViewSchedule,
+        modifier = Modifier.padding(top = 8.dp)
+      ) {
+        Text(
+          "All Upcoming Stages",
+          fontFamily = BlitzFontFamily,
+        )
+      }
+
+      if (onShowBattles != null) {
+        Button(
+          onClick = onShowBattles,
+          modifier = Modifier.padding(top = 8.dp)
+        ) {
+          Text(
+            "History of Battles",
+            fontFamily = BlitzFontFamily,
+          )
+        }
+      }
     }
   }
 }

@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import nz.benlawrence.splatoontracker.data.SplatoonDataState
 import nz.benlawrence.splatoontracker.data.SplatoonDataViewModel
 import nz.benlawrence.splatoontracker.ui.components.ChallengeCard
@@ -18,12 +19,12 @@ import nz.benlawrence.splatoontracker.ui.components.ChallengeCard
 @Composable
 fun Challenge(
   viewModel: SplatoonDataViewModel,
-  modifier: Modifier
+  navController: NavController
 ) {
   when (val state = viewModel.dataState) {
     is SplatoonDataState.Success ->
       Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
       ) {
