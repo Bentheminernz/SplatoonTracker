@@ -29,6 +29,12 @@ fun Splatnet(
 ) {
   var redirectUri by remember { mutableStateOf("") }
 
+  LaunchedEffect(Unit) {
+//    if (!viewModel.isAuthenticated) {
+      viewModel.loadAuthURL()
+//    }
+  }
+
   Column(
     modifier = Modifier
       .fillMaxSize()

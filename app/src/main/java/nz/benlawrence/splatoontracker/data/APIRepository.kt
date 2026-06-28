@@ -42,15 +42,15 @@ interface CoralAPI {
 //    suspend fun fetchCoopHistory(@Body request: Map<String, SplatnetAuthData>): CoopResultResponse
     suspend fun fetchCoopHistory(@Body request: SessionBlobRequest): BlobResponse<CoopHistoryResponse>
 
-    @POST("splatnet3/coop/history/details")
+    @POST("splatnet3/coop/history/detail")
     suspend fun fetchCoopHistoryDetails(@Body request: CoopDetailBlobRequest): BlobResponse<CoopHistoryDetailResponse>
 
     @POST("splatnet3/bankara/history")
     suspend fun fetchBankaraHistory(@Body request: SessionBlobRequest): BlobResponse<BankaraBattleHistoriesResponse>
 
-    @POST("splatnet3/regular-battle/history")
+    @POST("splatnet3/regular/history")
     suspend fun fetchRegularBattleHistory(@Body request: SessionBlobRequest): BlobResponse<RegularBattleHistoryResponse>
 
-    @POST("splatnet3/vsbattle/history/details")
+    @POST("splatnet3/vsBattle/detail")
     suspend fun fetchVsBattleBattleHistoryDetails(@Body request: VsBattleDetailRequest): BlobResponse<VsBattleDetail>
 }
